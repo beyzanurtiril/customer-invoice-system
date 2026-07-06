@@ -1,0 +1,49 @@
+/*
+  DOSYA: ui.css
+  Projede tekrar kullanılan genel buton stilleri burada.
+*/
+
+/* Bu ilk .button bloğu yalnızca butonun kart içindeki konumunu kontrol eder. */
+.button {
+  margin-bottom: auto;
+  align-self: flex-start;
+}
+/* Bütün butonların ortak boyut, padding, border, köşe ve font görünümü. */
+.button {
+  min-height: 32px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+/* Buton hover olduğunda hafif koyulaştırır. */
+.button:hover {
+  filter: brightness(0.98);
+}
+/* Mor ana işlem butonu. */
+.button--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+/* Pasif buton görünümü. */
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+/* Kırmızı dolu Sil butonu. */
+.button--danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: #ffffff;
+}
+
+/* Açık kırmızı ikincil tehlike butonu. */
+.button--dangerGhost {
+  border-color: var(--danger-bg);
+  background: var(--danger-bg);
+  color: var(--danger);
+}

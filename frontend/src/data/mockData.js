@@ -1,0 +1,74 @@
+/*
+  DOSYA: mockData.js
+
+  Backend hazır değilken müşteri işlemlerinde kullanılan geçici veriler.
+  Dashboard verileri ayrı tutulduğu için `mockDashboardData.js` dosyasına taşındı.
+*/
+
+export const initialCustomers = [
+  {
+    id: "1042",
+    name: "Mehmet Kaya",
+    phone: "+90 532 555 41 42",
+    email: "mehmet.kaya@example.com",
+    lineType: "Faturalı",
+    city: "İstanbul",
+    tag: "Riskli",
+    lastInvoice: "615 ₺",
+    status: "6 gün gecikti",
+    statusTone: "danger",
+    packageName: "İnternet 30 GB",
+  },
+  {
+    id: "1187",
+    name: "Elif Şahin",
+    phone: "+90 533 555 13 27",
+    email: "elif.sahin@example.com",
+    lineType: "Faturalı",
+    city: "Antalya",
+    tag: "Riskli",
+    lastInvoice: "480 ₺",
+    status: "Bekliyor",
+    statusTone: "warning",
+    packageName: "Karma 20 GB",
+  },
+  {
+    id: "1290",
+    name: "Can Öztürk",
+    phone: "+90 534 555 73 19",
+    email: "can.ozturk@example.com",
+    lineType: "Faturalı",
+    city: "Trabzon",
+    tag: "Riskli",
+    lastInvoice: "390 ₺",
+    status: "8 gün gecikti",
+    statusTone: "danger",
+    packageName: "Konuşma Plus",
+  },
+  {
+    id: "1315",
+    name: "Ayşe Yılmaz",
+    phone: "+90 535 555 92 31",
+    email: "ayse.yilmaz@example.com",
+    lineType: "Faturalı",
+    city: "İzmir",
+    tag: "Güvenilir",
+    lastInvoice: "420 ₺",
+    status: "Ödendi",
+    statusTone: "success",
+    packageName: "İnternet 20 GB",
+  },
+  {
+    id: "1402",
+    name: "Zeynep Demir",
+    phone: "+90 536 555 18 05",
+    email: "zeynep.demir@example.com",
+    lineType: "Faturasız",
+    city: "Ankara",
+    tag: "Aktif",
+    lastInvoice: "—",
+    status: "Faturalıya aday",
+    statusTone: "warning",
+    packageName: "Faturasız 15 GB",
+  },
+];
