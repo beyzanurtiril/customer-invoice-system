@@ -1,0 +1,24 @@
+package com.pia.telekom.repository;
+
+import com.pia.telekom.entity.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CustomerRepository extends JpaRepository<Customer, Long>,
+        JpaSpecificationExecutor<Customer> {
+
+    @Override
+    @EntityGraph(attributePaths = "region")
+    Page<Customer> findAll(Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = "region")
+    Page<Customer> findAll(org.springframework.data.jpa.domain.Specification<Customer> spec, Pageable pageable);
+
+    Page<Customer> findByRegion_RegionId(Long regionId, Pageable pageable);
+}
