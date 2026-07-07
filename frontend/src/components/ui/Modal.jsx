@@ -15,6 +15,7 @@
 */
 
 import { useEffect, useId } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function Modal({
   open,
@@ -27,6 +28,7 @@ export default function Modal({
 }) {
   // Birden fazla modal componenti olsa bile aria-labelledby ID'si çakışmaz.
   const titleId = useId();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!open) return undefined;
@@ -64,7 +66,7 @@ export default function Modal({
             {subtitle ? <p>{subtitle}</p> : null}
           </div>
 
-          <button className="icon-button" onClick={onClose} aria-label="Kapat">
+          <button className="icon-button" onClick={onClose} aria-label={t("modal_close")}>
             ×
           </button>
         </header>

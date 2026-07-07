@@ -9,32 +9,35 @@
 */
 
 import { NavLink } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 import { ChartIcon, GearIcon, HomeIcon, InvoiceIcon, PinIcon, UsersIcon } from "./Icons";
 
-// to: gidilecek route, label: ekrandaki yazı, icon: kullanılacak SVG componenti.
+// to: gidilecek route, key: t() sözlük anahtarı, icon: kullanılacak SVG componenti.
 const navItems = [
-  { to: "/", label: "Ana sayfa", icon: HomeIcon, end: true },
-  { to: "/customers", label: "Müşteriler", icon: UsersIcon },
-  { to: "/invoices", label: "Faturalar", icon: InvoiceIcon },
-  { to: "/analytics", label: "Analizler", icon: ChartIcon },
-  { to: "/regional", label: "Bölgesel", icon: PinIcon },
+  { to: "/", key: "nav_home", icon: HomeIcon, end: true },
+  { to: "/customers", key: "nav_customers", icon: UsersIcon },
+  { to: "/invoices", key: "nav_invoices", icon: InvoiceIcon },
+  { to: "/analytics", key: "nav_analytics", icon: ChartIcon },
+  { to: "/regional", key: "nav_regional", icon: PinIcon },
 ];
 
 export default function Sidebar() {
+  const { t } = useLanguage();
+
   return (
     <aside className="sidebar">
       <div className="brand">
         <strong>PiA</strong>
         <span className="brand__divider" />
         <span>
-          People
+          {t("brand_sub_line_1")}
           <br />
-          in Action
+          {t("brand_sub_line_2")}
         </span>
       </div>
 
-      <nav className="sidebar__nav" aria-label="Ana navigasyon">
-        {navItems.map(({ to, label, icon: Icon, end }) => (
+      <nav className="sidebar__nav" aria-label="Main navigation">
+        {navItems.map(({ to, key, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
@@ -43,7 +46,7 @@ export default function Sidebar() {
             className={({ isActive }) => `sidebar-link${isActive ? " sidebar-link--active" : ""}`}
           >
             <Icon />
-            <span>{label}</span>
+            <span>{t(key)}</span>
           </NavLink>
         ))}
       </nav>
@@ -56,7 +59,7 @@ export default function Sidebar() {
         }
       >
         <GearIcon />
-        <span>Ayarlar</span>
+        <span>{t("nav_settings")}</span>
       </NavLink>
     </aside>
   );

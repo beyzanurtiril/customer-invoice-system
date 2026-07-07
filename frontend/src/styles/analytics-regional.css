@@ -1,0 +1,190 @@
+/*
+  DOSYA: analytics-regional.css
+  Analizler ve Bölgesel sayfalarındaki kartların tasarımı burada kontrol edilir.
+  (Genel .dashboard-card, .chart-card, .card-heading, .badge classları dashboard.css
+  ve customers.css içinde tanımlıdır; burada yalnızca bu iki sayfaya özel classlar var.)
+*/
+
+/* İki kartı eşit genişlikte yan yana dizer (dashboard.css'teki 1.65fr/1fr'den farklı). */
+.dashboard-row--even {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* ---------- Analizler: Ciro Tahmini kartı ---------- */
+
+.forecast-average {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0 16px;
+}
+
+.forecast-average > span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.forecast-average > strong {
+  font-size: 28px;
+}
+
+.forecast-divider {
+  height: 1px;
+  background: var(--line);
+  margin-bottom: 16px;
+}
+
+.forecast-estimates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.forecast-estimate {
+  display: grid;
+  gap: 6px;
+}
+
+.forecast-estimate > span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.forecast-estimate__value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forecast-estimate__value strong {
+  color: var(--accent);
+  font-size: 20px;
+}
+
+/* ---------- Analizler: Üst Paket Önerileri kartı ---------- */
+
+.overage-list {
+  display: grid;
+  gap: 8px;
+}
+
+.overage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.overage-row__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.overage-row__left strong {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.overage-row__left span {
+  color: var(--danger);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.overage-row__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.overage-arrow {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.overage-tier-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.overage-tier-pill--accent {
+  color: var(--accent);
+}
+
+/* ---------- Bölgesel: yatay çubuk grafik ---------- */
+
+.hbar-subtitle {
+  margin: -6px 0 14px;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.hbar-list {
+  display: grid;
+  gap: 14px;
+}
+
+.hbar-row {
+  display: grid;
+  gap: 5px;
+}
+
+.hbar-row__labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+}
+
+.hbar-row__labels > span {
+  color: var(--text-2);
+}
+
+.hbar-row__labels > strong {
+  font-size: 12.5px;
+}
+
+.hbar-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.hbar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: grow-hbar 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.hbar-fill--accent {
+  background: var(--accent);
+}
+
+.hbar-fill--blue {
+  background: var(--blue);
+}
+
+@keyframes grow-hbar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

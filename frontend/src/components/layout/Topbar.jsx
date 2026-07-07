@@ -10,20 +10,23 @@
 */
 
 import Button from "../ui/Button";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function Topbar({ onLogout }) {
+  const { t } = useLanguage();
+
   return (
     <header className="topbar">
       <div className="topbar__account">
         <div className="avatar">AD</div>
         <div>
           <strong>Admin</strong>
-          <span>Sistem yöneticisi</span>
+          <span>{t("topbar_role")}</span>
         </div>
       </div>
 
       {/* Çıkış mantığı bu componentte değil, onLogout propunun geldiği üst katmandadır. */}
-      <Button onClick={onLogout}>Çıkış yap →</Button>
+      <Button onClick={onLogout}>{t("topbar_logout")}</Button>
     </header>
   );
 }

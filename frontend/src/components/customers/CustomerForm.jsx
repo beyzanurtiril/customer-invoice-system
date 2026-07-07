@@ -1,36 +1,17 @@
 /*
   COMPONENT: CustomerForm
 
-  Hem yeni müşteri ekleme hem de var olan müşteriyi güncelleme
-  ekranında kullanılan ortak formdur.
-
-  AddCustomerModal:
-  - initialValues göndermez.
-  - Form boş değerlerle açılır.
-  - Telefon değiştirilebilir.
-
-  UpdateCustomerModal:
-  - initialValues olarak seçili müşteriyi gönderir.
-  - phoneLocked gönderir.
-  - Telefon inputu kilitlenir.
-
-  TASARIM:
-  - Form düzeni: customers.css -> `.modal-form-grid`
-  - İki kolon: `.form-two-columns`
-  - Form alanları: `.form-field`
-  - Kilitli telefon: `.locked-input`
-  - Alt butonlar: `.inline-actions`
-  - Buton görünümü: ui.css
+  Hem yeni müşteri ekleme hem de var olan müşteriyi güncelleme ekranında kullanılan ortak formdur.
+  Select value'ları veriyle uyumlu kalması için Türkçe tutulur, görünen option metinleri çevrilir.
 */
 
 import { useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
+import { getTagOptions } from "../../utils/customerFilter";
 import Button from "../ui/Button";
 import FormField from "../ui/FormField";
-import { getTagOptions } from "../../utils/customerFilter";
 
-// Yeni müşteri formu açıldığında kullanılacak başlangıç değerleri.
 const defaultValues = {
-  /*db ile kesinleşir*/
   name: "",
   phone: "",
   email: "",
@@ -40,14 +21,8 @@ const defaultValues = {
   tag: "Güvenilir",
 };
 
-const cities = ["İstanbul", "Ankara", "İzmir", "Antalya", "Trabzon"]; /*silincek*/
-// Props:
-// initialValues -> Güncelleme formunda mevcut müşteri bilgileri.
-// phoneLocked   -> true ise telefon değiştirilemez.
-// submitLabel   -> Ana butonda görünen yazı.
-// submitting    -> İşlem devam ederken butonları kilitler.
-// onCancel      -> İptal butonunda çalışır.
-// onSubmit      -> Formun son verisini üst componente gönderir.
+const cities = ["İstanbul", "Ankara", "İzmir", "Antalya", "Trabzon"];
+
 export default function CustomerForm({
   initialValues = defaultValues,
   phoneLocked = false,
@@ -56,34 +31,9 @@ export default function CustomerForm({
   onCancel,
   onSubmit,
 }) {
-  /*
-    Formun bütün alanlarını tek obje state'inde tutuyoruz.
-
-    Önce defaultValues, sonra initialValues yayılır.
-    Aynı alan initialValues içinde varsa müşteriden gelen değer kazanır.
-
-    Örnek:
-    default city = İstanbul
-    initialValues.city = Ankara
-    sonuç city = Ankara
-
-    DİKKAT:
-    useState başlangıç değerini yalnızca component ilk oluşturulurken kullanır.
-    Aynı form componenti kapanmadan farklı müşteriyle tekrar kullanılacaksa
-    initialValues değişimini useEffect ile takip etmek gerekebilir.
-  */
+  const { t, tv } = useLanguage();
   const [form, setForm] = useState({ ...defaultValues, ...initialValues });
   const tagOptions = getTagOptions(form.lineType, false);
-
-  /*
-    Bütün input ve selectlerin ortak onChange fonksiyonu.
-
-    Çalışabilmesi için input/select üzerinde:
-    - name="..."
-    - value={form....}
-    - onChange={updateField}
-    bulunmalıdır.
-  */
 
   const updateField = (event) => {
     const { name, value } = event.target;
@@ -103,8 +53,6 @@ export default function CustomerForm({
     });
   };
 
-  // Form gönderildiğinde sayfanın yenilenmesini engeller
-  // ve güncel form bilgilerini modalın onSubmit fonksiyonuna gönderir.
   const handleSubmit = (event) => {
     event.preventDefault();
     onSubmit(form);
@@ -112,95 +60,70 @@ export default function CustomerForm({
 
   return (
     <form className="modal-form-grid" onSubmit={handleSubmit}>
-      <FormField label="Ad soyad">
-        {/*
-          Bu controlled inputtur:
-          Görünen değer `form.name` state'inden gelir.
-          Kullanıcı yazdıkça updateField state'i günceller.
-        */}
+      <FormField label={t("customers_form_name")}>
         <input required name="name" value={form.name} onChange={updateField} />
       </FormField>
 
       <FormField
-        label="Telefon"
-        // Telefon kilitliyse inputun altında açıklama gösterilir.
-        hint={
-          phoneLocked
-            ? "Telefon numarası hat taşıma/devir süreci nedeniyle bu ekrandan değiştirilemez."
-            : undefined
-        }
+        label={t("customers_form_phone")}
+        hint={phoneLocked ? t("customers_form_phone_locked") : undefined}
       >
-        {/*
-          phoneLocked true olduğunda CSS için `locked-input` classı eklenir.
-          False olduğunda className undefined olur ve normal input görünür.
-        */}
-
         <div className={phoneLocked ? "locked-input" : undefined}>
-          {/* Kilit ikonu sadece güncelleme modunda görünür. */}
           {phoneLocked ? <span aria-hidden="true">🔒</span> : null}
           <input
             required
             name="phone"
             value={form.phone}
             onChange={updateField}
-            // disabled olduğu için kullanıcı telefon değerini değiştiremez.
             disabled={phoneLocked}
             placeholder="+90 5__ ___ __ __"
           />
         </div>
       </FormField>
 
-      <FormField label="E-posta">
+      <FormField label={t("customers_form_email")}>
         <input required type="email" name="email" value={form.email} onChange={updateField} />
       </FormField>
 
-      {/* Hat tipi ve şehir CSS sayesinde iki sütun halinde görünür. */}
       <div className="form-two-columns">
-        <FormField label="Hat tipi">
+        <FormField label={t("customers_form_line_type")}>
           <select name="lineType" value={form.lineType} onChange={updateField}>
-            <option>Faturalı</option>
-            <option>Faturasız</option>
+            <option value="Faturalı">{tv("Faturalı")}</option>
+            <option value="Faturasız">{tv("Faturasız")}</option>
           </select>
         </FormField>
 
-        <FormField label="Şehir">
+        <FormField label={t("customers_form_city")}>
           <select name="city" value={form.city} onChange={updateField}>
-            {/* cities array'indeki her şehir için option üretir. */}
             {cities.map((city) => (
-              <option key={city}>{city}</option>
+              <option key={city} value={city}>
+                {tv(city)}
+              </option>
             ))}
           </select>
         </FormField>
       </div>
 
-      <FormField label="Paket">
+      <FormField label={t("customers_form_package")}>
         <input required name="packageName" value={form.packageName} onChange={updateField} />
       </FormField>
 
-      <FormField label="Etiket">
+      <FormField label={t("customers_form_tag")}>
         <select name="tag" value={form.tag} onChange={updateField}>
           {tagOptions.map((option) => (
-            <option key={option}>{option}</option>
+            <option key={option} value={option}>
+              {tv(option)}
+            </option>
           ))}
         </select>
       </FormField>
 
-      {/* Formun sağ altındaki İptal ve Kaydet butonları. */}
       <div className="inline-actions">
-        <Button
-          // Bu buton form submit etmemelidir.
-          // Button componentinin varsayılan type'ı kontrol edilmelidir.
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          İptal
+        <Button onClick={onCancel} disabled={submitting}>
+          {t("button_cancel")}
         </Button>
         <Button variant="primary" type="submit" disabled={submitting}>
-          {/*
-            İşlem devam ederken kullanıcıya durum gösterilir.
-            Aynı zamanda disabled olduğu için tekrar tekrar gönderilemez.
-          */}
-          {submitting ? "Kaydediliyor…" : submitLabel}
+          {submitting ? t("customers_form_saving") : submitLabel}
         </Button>
       </div>
     </form>

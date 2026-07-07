@@ -2,41 +2,21 @@
   COMPONENT: CustomerDetail
 
   Seçilen müşterinin temel bilgilerini ve fatura özetini gösterir.
-  Bu dosya yalnızca içeriği oluşturur; modal çerçevesi CustomerDetailModal
-  tarafından sağlanır.
-
-  customer objesinde kullanılan alanlar:
-  name, phone, email, tag, lineType, packageName, city,
-  lastInvoice, statusTone ve status.
-
-  TASARIM:
-  - Ana detay yapısı: customers.css -> `.customer-detail`
-  - Üst profil alanı: `.customer-detail__top`
-  - Büyük avatar: layout.css -> `.avatar`, `.avatar--large`
-  - Bilgi kartları: customers.css -> `.detail-grid`
-  - Fatura listesi: customers.css -> `.invoice-list`
-  - Durum etiketleri: customers.css -> `.badge...`
 */
-import Badge from "../ui/Badge";
+
+import { useLanguage } from "../../context/LanguageContext";
 import { getCustomerTagTone } from "../../utils/customerFilter";
+import Badge from "../ui/Badge";
 
 export default function CustomerDetail({ customer }) {
-  // Müşteri seçilmemişse detay içeriği render edilmez.
+  const { t, tv } = useLanguage();
+
   if (!customer) return null;
 
   return (
     <div className="customer-detail">
-      {/* Avatar, telefon, e-posta ve müşteri etiketi. */}
       <div className="customer-detail__top">
         <div className="avatar avatar--large">
-          {/*
-            İsim boşluklardan ayrılır ve her kelimenin ilk harfi alınır.
-
-            Örnek:
-            "Mehmet Kaya" -> ["Mehmet", "Kaya"] -> "MK"
-
-            `slice(0, 2)` en fazla iki harf gösterir.
-          */}
           {customer.name
             .split(" ")
             .map((part) => part[0])
@@ -46,57 +26,43 @@ export default function CustomerDetail({ customer }) {
         <div>
           <strong>{customer.phone}</strong>
           <span>{customer.email}</span>
-          {/*
-            Müşteri etiketi "Riskli" ise kırmızı danger badge,
-            diğer bütün durumlarda yeşil success badge gösterilir.
-
-            Badge tasarımı customers.css içindeki `.badge--danger`
-            ve `.badge--success` sınıflarından gelir.
-          */}
-          <Badge tone={getCustomerTagTone(customer.tag)}>{customer.tag} müşteri</Badge>
+          <Badge tone={getCustomerTagTone(customer.tag)}>
+            {t("customers_detail_badge", { tag: tv(customer.tag) })}
+          </Badge>
         </div>
       </div>
-      {/* Hat tipi, paket ve şehir bilgisini üç küçük kart halinde gösterir. */}
+
       <div className="detail-grid">
         <div>
-          <span>HAT TİPİ</span>
-          <strong>{customer.lineType}</strong>
+          <span>{t("customers_table_line_type")}</span>
+          <strong>{tv(customer.lineType)}</strong>
         </div>
         <div>
-          <span>PAKET</span>
-          <strong>{customer.packageName}</strong>
+          <span>{t("customers_detail_package")}</span>
+          <strong>{tv(customer.packageName)}</strong>
         </div>
         <div>
-          <span>ŞEHİR</span>
-          <strong>{customer.city}</strong>
+          <span>{t("customers_table_city")}</span>
+          <strong>{tv(customer.city)}</strong>
         </div>
       </div>
 
-      <h3>FATURA ÖZETİ</h3>
+      <h3>{t("customers_detail_invoice_summary")}</h3>
       <div className="invoice-list">
-        {/*
-          Güncel ayın tutarı ve durumu müşteri objesinden gelir.
-          `statusTone`, Badge componentine hangi rengin kullanılacağını söyler.
-        */}
         <div>
-          <span>Temmuz 2026</span>
+          <span>{t("customers_detail_current_month")}</span>
           <strong>{customer.lastInvoice}</strong>
-          <Badge tone={customer.statusTone}>{customer.status}</Badge>
+          <Badge tone={customer.statusTone}>{tv(customer.status)}</Badge>
         </div>
-        {/*
-          Aşağıdaki iki geçmiş fatura şu an sabit/mock veridir.
-          Bunların müşteriye göre değişmesi istenirse backend verisine veya
-          customer.invoices gibi bir listeye çevrilmelidir.
-        */}
         <div>
-          <span>Haziran 2026</span>
+          <span>{t("customers_detail_previous_month_1")}</span>
           <strong>590 ₺</strong>
-          <Badge tone="success">Ödendi</Badge>
+          <Badge tone="success">{tv("Ödendi")}</Badge>
         </div>
         <div>
-          <span>Mayıs 2026</span>
+          <span>{t("customers_detail_previous_month_2")}</span>
           <strong>560 ₺</strong>
-          <Badge tone="success">Ödendi</Badge>
+          <Badge tone="success">{tv("Ödendi")}</Badge>
         </div>
       </div>
     </div>

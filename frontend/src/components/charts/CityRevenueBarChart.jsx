@@ -12,23 +12,25 @@
   dashboard.css -> `.bar-chart`, `.bar-column`, `.bar-fill`, `.chart-legend`
 */
 
-export default function CityRevenueBarChart({
-  data = [],
-  title = "Şehir bazlı gelir",
-  subtitle = "Bu ay · bin ₺",
-}) {
+import { useLanguage } from "../../context/LanguageContext";
+
+export default function CityRevenueBarChart({ data = [], title, subtitle }) {
+  const { t, tv } = useLanguage();
+  const visibleTitle = title ?? t("chart_city_revenue_title");
+  const visibleSubtitle = subtitle ?? t("chart_city_revenue_subtitle");
+
   // Boş array geldiğinde Math.max(...[]) -Infinity verir; 1 ekleyerek hesabı güvenli tutuyoruz.
   const maxValue = Math.max(1, ...data.map((item) => Number(item.value) || 0));
 
   return (
     <article className="dashboard-card chart-card chart-card--wide">
       <div className="card-heading">
-        <h2>{title}</h2>
-        <span>{subtitle}</span>
+        <h2>{visibleTitle}</h2>
+        <span>{visibleSubtitle}</span>
       </div>
 
       {data.length ? (
-        <div className="bar-chart" role="img" aria-label={`${title} grafiği`}>
+        <div className="bar-chart" role="img" aria-label={`${visibleTitle} ${t("chart_aria_suffix")}`}>
           {data.map((item, index) => {
             const numericValue = Number(item.value) || 0;
 
@@ -51,21 +53,21 @@ export default function CityRevenueBarChart({
                   />
                 </div>
 
-                <span>{item.city}</span>
+                <span>{tv(item.city)}</span>
               </div>
             );
           })}
         </div>
       ) : (
-        <div className="empty-state">Şehir geliri verisi bulunamadı.</div>
+        <div className="empty-state">{t("chart_city_revenue_empty")}</div>
       )}
 
       <div className="chart-legend">
         <span>
-          <i className="legend-dot legend-dot--accent" /> Büyükşehir
+          <i className="legend-dot legend-dot--accent" /> {tv("Büyükşehir")}
         </span>
         <span>
-          <i className="legend-dot legend-dot--blue" /> Bölge merkezi
+          <i className="legend-dot legend-dot--blue" /> {tv("Bölge merkezi")}
         </span>
       </div>
     </article>

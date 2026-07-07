@@ -13,6 +13,8 @@
   dashboard.css -> `.line-chart`, `.revenue-line`, `.revenue-point`, `.chart-grid-line`
 */
 
+import { useLanguage } from "../../context/LanguageContext";
+
 const width = 660;
 const height = 205;
 const chartLeft = 52;
@@ -43,11 +45,10 @@ function calculateScale(data) {
   };
 }
 
-export default function RevenueLineChart({
-  data = [],
-  title = "Aylık gelir trendi",
-  subtitle = "Son 6 ay · bin ₺",
-}) {
+export default function RevenueLineChart({ data = [], title, subtitle }) {
+  const { t, tv } = useLanguage();
+  const visibleTitle = title ?? t("chart_revenue_trend_title");
+  const visibleSubtitle = subtitle ?? t("chart_revenue_trend_subtitle");
   const { minValue, maxValue } = calculateScale(data);
   const valueRange = Math.max(1, maxValue - minValue);
 
@@ -75,8 +76,8 @@ export default function RevenueLineChart({
   return (
     <article className="dashboard-card chart-card chart-card--wide">
       <div className="card-heading">
-        <h2>{title}</h2>
-        <span>{subtitle}</span>
+        <h2>{visibleTitle}</h2>
+        <span>{visibleSubtitle}</span>
       </div>
 
       {points.length ? (
@@ -84,7 +85,7 @@ export default function RevenueLineChart({
           className="line-chart"
           viewBox={`0 0 ${width} ${height}`}
           role="img"
-          aria-label={title}
+          aria-label={visibleTitle}
         >
           {ticks.map((value, index) => {
             const y = chartTop + (index * (chartBottom - chartTop)) / (tickCount - 1);
@@ -111,13 +112,13 @@ export default function RevenueLineChart({
                 style={{ animationDelay: `${0.45 + index * 0.08}s` }}
               />
               <text x={point.x} y="197" textAnchor="middle" className="chart-axis-label">
-                {point.month}
+                {tv(point.month)}
               </text>
             </g>
           ))}
         </svg>
       ) : (
-        <div className="empty-state">Gelir trendi verisi bulunamadı.</div>
+        <div className="empty-state">{t("chart_revenue_empty")}</div>
       )}
     </article>
   );

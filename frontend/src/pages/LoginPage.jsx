@@ -13,8 +13,11 @@
 
 import { useState } from "react";
 import Button from "../components/ui/Button";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function LoginPage({ onLogin }) {
+  const { t } = useLanguage();
+
   // Inputları React state'ine bağlayarak kontrollü form oluşturuyoruz.
   const [form, setForm] = useState({
     email: "admin@pia-group.com",
@@ -42,22 +45,19 @@ export default function LoginPage({ onLogin }) {
             <strong>PiA</strong>
             <span className="login-brand-divider" />
             <span>
-              People
+              {t("brand_sub_line_1")}
               <br />
-              in Action
+              {t("brand_sub_line_2")}
             </span>
           </div>
 
           <div className="login-welcome-copy">
             <h1>
-              Yönetim Paneline
+              {t("login_title_line_1")}
               <br />
-              Hoş Geldin.
+              {t("login_title_line_2")}
             </h1>
-            <p>
-              Müşteri yönetimi, senaryo bazlı fatura takibi ve gelişmiş bölgesel analizler için
-              sisteme giriş yap.
-            </p>
+            <p>{t("login_description")}</p>
           </div>
         </div>
       </section>
@@ -65,13 +65,13 @@ export default function LoginPage({ onLogin }) {
       <section className="login-form-panel">
         <form className="login-form-card" onSubmit={handleSubmit}>
           <div className="login-form-heading">
-            <h2>Hesabına Giriş Yap</h2>
-            <p>Devam etmek için yönetici bilgilerini gir.</p>
+            <h2>{t("login_heading")}</h2>
+            <p>{t("login_subtitle")}</p>
           </div>
 
           <div className="login-fields">
             <label className="login-field">
-              <span>E-POSTA ADRESİ</span>
+              <span>{t("login_email_label")}</span>
               <input
                 required
                 type="email"
@@ -84,9 +84,9 @@ export default function LoginPage({ onLogin }) {
 
             <label className="login-field">
               <span className="login-password-label">
-                <span>ŞİFRE</span>
+                <span>{t("login_password_label")}</span>
                 <button type="button" className="login-forgot-button">
-                  Şifremi unuttum
+                  {t("login_forgot_password")}
                 </button>
               </span>
 
@@ -103,7 +103,7 @@ export default function LoginPage({ onLogin }) {
           </div>
 
           <Button className="login-submit-button" variant="primary" type="submit">
-            Giriş Yap
+            {t("login_submit")}
           </Button>
         </form>
       </section>

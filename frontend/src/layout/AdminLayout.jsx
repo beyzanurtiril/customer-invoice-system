@@ -4,9 +4,11 @@ import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
 import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function AdminLayout({ onLogout }) {
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="app-shell">
@@ -19,20 +21,20 @@ export default function AdminLayout({ onLogout }) {
 
       <Modal
         open={logoutOpen}
-        title="Çıkış yapmak istiyor musun?"
-        subtitle="Açık oturum kapatılacak ve giriş ekranına yönlendirileceksin."
+        title={t("logout_modal_title")}
+        subtitle={t("logout_modal_subtitle")}
         onClose={() => setLogoutOpen(false)}
         width="440px"
         footer={
           <>
-            <Button onClick={() => setLogoutOpen(false)}>Vazgeç</Button>
+            <Button onClick={() => setLogoutOpen(false)}>{t("button_cancel")}</Button>
             <Button variant="primary" onClick={onLogout}>
-              Çıkış yap
+              {t("logout_confirm")}
             </Button>
           </>
         }
       >
-        <p className="muted-copy">Kaydedilmemiş ekran filtreleri sıfırlanabilir.</p>
+        <p className="muted-copy">{t("logout_modal_note")}</p>
       </Modal>
     </div>
   );
