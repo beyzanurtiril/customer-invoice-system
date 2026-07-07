@@ -1,13 +1,17 @@
+import { useLanguage } from "../context/LanguageContext";
+
 export default function PlaceholderPage({ title }) {
+  const { t } = useLanguage();
+
   return (
     <section className="page-content">
       <div className="page-heading">
         <h1>{title}</h1>
-        <p>Bu ekran sonraki geliştirme aşamasında tamamlanacak.</p>
+        <p>{t("placeholder_page_subtitle")}</p>
       </div>
       <div className="placeholder-card">
-        <strong>{title} ekranı henüz tasarlanmadı.</strong>
-        <span>Ana sayfa ve Müşteriler akışları şu anda kullanılabilir.</span>
+        <strong>{t("placeholder_page_title", { title })}</strong>
+        <span>{t("placeholder_page_desc")}</span>
       </div>
     </section>
   );

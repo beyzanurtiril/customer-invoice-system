@@ -8,12 +8,16 @@
   dashboard.css -> `.stat-card` ve `.stat-card--warning/.stat-card--danger`
 */
 
+import { useLanguage } from "../../context/LanguageContext";
+
 export default function StatCard({ label, value, change, tone = "default" }) {
+  const { tv } = useLanguage();
+
   return (
     <article className={`stat-card stat-card--${tone}`}>
-      <span>{label}</span>
+      <span>{tv(label)}</span>
       <strong>{value}</strong>
-      <small>{change}</small>
+      <small>{tv(change)}</small>
     </article>
   );
 }

@@ -2,73 +2,64 @@
   COMPONENT: CustomerFilters
 
   Müşteriler sayfasında sürekli görünen beşli filtre panelini oluşturur.
-
-  ÖNEMLİ:
-  Bu sürümde select alanları yalnızca görsel olarak bulunuyor.
-  Seçilen değerler state'e bağlanmadığı için tabloyu gerçekten filtrelemez.
-  Gerçek filtreleme eklemek için:
-  - value
-  - onChange
-  - filtre state'i
-  propları eklenmelidir.
-
-  TASARIM:
-  - Panel: customers.css -> `.filter-panel`
-  - Başlıklar ve selectler: `.filter-panel label`, `.filter-panel select`
+  Select value'ları veriyle uyumlu kalması için Türkçe tutulur;
+  option metinleri useLanguage().tv ile seçili dile göre çevrilir.
 */
 
-// Her iç array:
-// [ekranda görünen başlık, selectin başlangıç değeri]
-
+import { useLanguage } from "../../context/LanguageContext";
 import { getTagOptions } from "../../utils/customerFilter";
 
 export default function CustomerFilters({ filters, onChange }) {
+  const { t, tv } = useLanguage();
   const tagOptions = getTagOptions(filters.lineType);
+
   return (
     <div className="filter-panel">
       <label>
-        <span>HAT TİPİ</span>
+        <span>{t("customers_filter_line_type")}</span>
         <select
           value={filters.lineType}
           onChange={(event) => onChange("lineType", event.target.value)}
         >
-          <option>Tümü</option>
-          <option>Faturalı</option>
-          <option>Faturasız</option>
+          <option value="Tümü">{tv("Tümü")}</option>
+          <option value="Faturalı">{tv("Faturalı")}</option>
+          <option value="Faturasız">{tv("Faturasız")}</option>
         </select>
       </label>
 
       <label>
-        <span>ETİKET</span>
+        <span>{t("customers_filter_tag")}</span>
         <select value={filters.tag} onChange={(event) => onChange("tag", event.target.value)}>
           {tagOptions.map((option) => (
-            <option key={option}>{option}</option>
+            <option key={option} value={option}>
+              {tv(option)}
+            </option>
           ))}
         </select>
       </label>
 
       <label>
-        <span>ŞEHİR / BÖLGE</span>
+        <span>{t("customers_filter_city_region")}</span>
         <select value={filters.city} onChange={(event) => onChange("city", event.target.value)}>
-          <option>Tümü</option>
+          <option value="Tümü">{tv("Tümü")}</option>
         </select>
       </label>
 
       <label>
-        <span>GECİKME (12 AY)</span>
+        <span>{t("customers_filter_delay")}</span>
         <select value={filters.delay} onChange={(event) => onChange("delay", event.target.value)}>
-          <option>3+ kez</option>
-          <option>Tümü</option>
+          <option value="3+ kez">{tv("3+ kez")}</option>
+          <option value="Tümü">{tv("Tümü")}</option>
         </select>
       </label>
 
       <label>
-        <span>AYLIK FATURA</span>
+        <span>{t("customers_filter_monthly_invoice")}</span>
         <select
           value={filters.monthlyInvoice}
           onChange={(event) => onChange("monthlyInvoice", event.target.value)}
         >
-          <option>Tümü</option>
+          <option value="Tümü">{tv("Tümü")}</option>
         </select>
       </label>
     </div>

@@ -141,7 +141,7 @@
   padding: 48px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
   display: grid;
   gap: 32px;
@@ -184,7 +184,7 @@
   padding: 12px 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--surface);
   color: var(--text);
   font-size: 14px;
 }
@@ -217,4 +217,66 @@
   margin-top: 0;
   align-self: stretch;
   font-size: 14px;
+}
+
+/*
+  AYARLAR SAYFASI
+
+  Dil ve tema kartlarının ızgarası ile segmented-control (Türkçe/English,
+  Açık/Koyu) butonlarının görünümü.
+*/
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.settings-card {
+  min-height: auto;
+}
+
+.settings-card__desc {
+  margin: 0 0 16px;
+  color: var(--text-2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* İki seçenekli anahtar/toggle görünümlü kontrol (dil, tema). */
+.segmented-control {
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  gap: 4px;
+}
+
+.segmented-control__option {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.segmented-control__option:hover {
+  color: var(--text);
+}
+
+.segmented-control__option--active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.settings-saved-note {
+  margin-top: 16px;
+  color: var(--text-3);
+  font-size: 12px;
 }

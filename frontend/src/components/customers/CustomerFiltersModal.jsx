@@ -2,72 +2,69 @@
   COMPONENT: CustomerFiltersModal
 
   "Filtreler" butonuna basıldığında açılan gelişmiş filtre modalıdır.
-
-  ÖNEMLİ:
-  Şu an "Filtreleri uygula" butonu yalnızca modalı kapatıyor.
-  Form değerleri okunmuyor ve müşteri listesine uygulanmıyor.
-  Gerçek filtreleme için bu componentte form state'i oluşturulmalı ve
-  `onApply(filters)` benzeri bir prop kullanılmalıdır.
-
-  TASARIM:
-  - Modal: customers.css -> `.modal`
-  - Form alanları: `.modal-form-grid`, `.form-field`
-  - Butonlar: ui.css
+  Select value'ları gerçek filtre değerleri olarak Türkçe kalır; görünen metinler çevrilir.
 */
 
+import { useLanguage } from "../../context/LanguageContext";
+import { getTagOptions } from "../../utils/customerFilter";
 import Button from "../ui/Button";
 import FormField from "../ui/FormField";
 import Modal from "../ui/Modal";
 
-export default function CustomerFiltersModal({ open, onClose }) {
+export default function CustomerFiltersModal({ open, filters, onChange, onClose, onApply }) {
+  const { t, tv } = useLanguage();
+  const tagOptions = getTagOptions(filters.lineType);
+
   return (
     <Modal
       open={open}
-      title="Gelişmiş filtreler"
-      subtitle="Müşteri listesini daha ayrıntılı kriterlerle daralt."
+      title={t("customers_filter_modal_title")}
+      subtitle={t("customers_filter_modal_subtitle")}
       onClose={onClose}
       footer={
         <>
-          {/* Şu an iki buton da yalnızca modalı kapatır. */}
-          <Button onClick={onClose}>Vazgeç</Button>
-          <Button variant="primary" onClick={onClose}>
-            Filtreleri uygula
+          <Button onClick={onClose}>{t("button_cancel")}</Button>
+          <Button variant="primary" onClick={onApply}>
+            {t("customers_filter_apply")}
           </Button>
         </>
       }
     >
       <div className="modal-form-grid">
-        {/*
-          FormField yalnızca label ve alan yerleşimini standartlaştırır.
-          İçine verilen select/input gerçek form elemanıdır.
-        */}
-        <FormField label="Hat tipi">
-          <select defaultValue="Faturalı">
-            <option>Faturalı</option>
-            <option>Faturasız</option>
+        <FormField label={t("customers_form_line_type")}>
+          <select value={filters.lineType} onChange={(event) => onChange("lineType", event.target.value)}>
+            <option value="Tümü">{tv("Tümü")}</option>
+            <option value="Faturalı">{tv("Faturalı")}</option>
+            <option value="Faturasız">{tv("Faturasız")}</option>
           </select>
         </FormField>
-        <FormField label="Etiket">
-          <select defaultValue="Riskli">
-            <option>Riskli</option>
-            <option>Güvenilir</option>
+        <FormField label={t("customers_form_tag")}>
+          <select value={filters.tag} onChange={(event) => onChange("tag", event.target.value)}>
+            {tagOptions.map((option) => (
+              <option key={option} value={option}>
+                {tv(option)}
+              </option>
+            ))}
           </select>
         </FormField>
-        <FormField label="Şehir / bölge">
-          <select defaultValue="Tümü">
-            <option>Tümü</option>
-            <option>İstanbul</option>
-            <option>Ankara</option>
+        <FormField label={t("customers_filter_city_region")}>
+          <select value={filters.city} onChange={(event) => onChange("city", event.target.value)}>
+            <option value="Tümü">{tv("Tümü")}</option>
+            <option value="İstanbul">{tv("İstanbul")}</option>
+            <option value="Ankara">{tv("Ankara")}</option>
           </select>
         </FormField>
-        <FormField label="Son 12 ay gecikme">
-          <select defaultValue="3+ kez">
-            <option>3+ kez</option>
-            <option>Tümü</option>
+        <FormField label={t("customers_filter_last_12_months")}>
+          <select value={filters.delay} onChange={(event) => onChange("delay", event.target.value)}>
+            <option value="3+ kez">{tv("3+ kez")}</option>
+            <option value="Tümü">{tv("Tümü")}</option>
           </select>
         </FormField>
-        <FormField label="Aylık fatura aralığı">
-          <input defaultValue="0 ₺ — 1.500 ₺" />
+        <FormField label={t("customers_filter_invoice_range")}>
+          <input
+            value={filters.monthlyInvoice === "Tümü" ? tv("0 ₺ — 1.500 ₺") : tv(filters.monthlyInvoice)}
+            readOnly
+          />
         </FormField>
       </div>
     </Modal>

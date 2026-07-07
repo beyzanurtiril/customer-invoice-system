@@ -12,6 +12,8 @@
   dashboard.css -> `.donut-layout`, `.donut-chart`, `.donut-segment`, `.donut-legend`
 */
 
+import { useLanguage } from "../../context/LanguageContext";
+
 const radius = 48;
 const circumference = 2 * Math.PI * radius;
 
@@ -23,16 +25,11 @@ const toneColors = {
   line: "var(--line)",
 };
 
-function formatCount(value) {
-  return new Intl.NumberFormat("tr-TR").format(Number(value) || 0);
-}
-
-export default function PackageDonutChart({
-  data = [],
-  totalLines = 0,
-  title = "Paket dağılımı",
-  subtitle = "Aktif hatlar",
-}) {
+export default function PackageDonutChart({ data = [], totalLines = 0, title, subtitle }) {
+  const { locale, t, tv } = useLanguage();
+  const visibleTitle = title ?? t("chart_package_title");
+  const visibleSubtitle = subtitle ?? t("chart_package_subtitle");
+  const formatCount = (value) => new Intl.NumberFormat(locale).format(Number(value) || 0);
   const totalValue = data.reduce((total, segment) => total + (Number(segment.value) || 0), 0);
 
   // Her segment için SVG çizgi uzunluğu ve başlangıç konumu hesaplanır.
@@ -58,14 +55,14 @@ export default function PackageDonutChart({
   return (
     <article className="dashboard-card chart-card">
       <div className="card-heading">
-        <h2>{title}</h2>
-        <span>{subtitle}</span>
+        <h2>{visibleTitle}</h2>
+        <span>{visibleSubtitle}</span>
       </div>
 
       {segments.length && totalValue > 0 ? (
         <div className="donut-layout">
           <div className="donut-chart-wrap">
-            <svg className="donut-chart" viewBox="0 0 120 120" role="img" aria-label={title}>
+            <svg className="donut-chart" viewBox="0 0 120 120" role="img" aria-label={visibleTitle}>
               <circle cx="60" cy="60" r={radius} className="donut-track" />
 
               {segments.map((segment, index) => (
@@ -91,7 +88,7 @@ export default function PackageDonutChart({
 
             <div className="donut-center">
               <strong>{formatCount(totalLines)}</strong>
-              <span>hat</span>
+              <span>{t("chart_line_count_label")}</span>
             </div>
           </div>
 
@@ -103,14 +100,14 @@ export default function PackageDonutChart({
                   style={{ background: toneColors[segment.tone] ?? toneColors.gray }}
                 />
                 <span>
-                  {segment.label} · %{segment.percentage}
+                  {tv(segment.label)} · %{segment.percentage}
                 </span>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="empty-state">Paket dağılımı verisi bulunamadı.</div>
+        <div className="empty-state">{t("chart_package_empty")}</div>
       )}
     </article>
   );

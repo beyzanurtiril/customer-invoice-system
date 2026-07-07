@@ -14,12 +14,16 @@ import PackageDonutChart from "../components/charts/PackageDonutChart";
 import RevenueLineChart from "../components/charts/RevenueLineChart";
 import RecommendationCard from "../components/dashboard/RecommendationCard";
 import StatCard from "../components/dashboard/StatCard";
+import { useLanguage } from "../context/LanguageContext";
 import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
 import StatusMessage from "../components/ui/StatusMessage";
 import useDashboardData from "../hooks/useDashboardData";
 
 export default function DashboardPage() {
+  // Arayüz metinlerini seçili dile göre döndürür.
+  const { t, tv } = useLanguage();
+
   // Yalnızca önerilerin tamamını gösteren modalın açık/kapalı durumunu yönetir.
   const [recommendationsOpen, setRecommendationsOpen] = useState(false);
 
@@ -30,10 +34,10 @@ export default function DashboardPage() {
     return (
       <section className="page-content">
         <div className="page-heading">
-          <h1>Ana sayfa</h1>
-          <p>Dashboard verileri hazırlanıyor…</p>
+          <h1>{t("dashboard_title")}</h1>
+          <p>{t("dashboard_loading_title")}</p>
         </div>
-        <StatusMessage>Dashboard yükleniyor…</StatusMessage>
+        <StatusMessage>{t("dashboard_loading")}</StatusMessage>
       </section>
     );
   }
@@ -42,11 +46,11 @@ export default function DashboardPage() {
     return (
       <section className="page-content">
         <div className="page-heading">
-          <h1>Ana sayfa</h1>
-          <p>Dashboard yüklenemedi.</p>
+          <h1>{t("dashboard_title")}</h1>
+          <p>{t("dashboard_error_title")}</p>
         </div>
-        <StatusMessage tone="danger" action={<Button onClick={reload}>Tekrar dene</Button>}>
-          {error}
+        <StatusMessage tone="danger" action={<Button onClick={reload}>{t("button_retry")}</Button>}>
+          {tv(error)}
         </StatusMessage>
       </section>
     );
@@ -62,14 +66,14 @@ export default function DashboardPage() {
   return (
     <section className="page-content">
       <div className="page-heading">
-        <h1>Ana sayfa</h1>
-        <p>{data?.periodLabel ?? "Genel bakış"}</p>
+        <h1>{t("dashboard_title")}</h1>
+        <p>{tv(data?.periodLabel) ?? t("dashboard_default_period")}</p>
       </div>
 
       {/* Önceden yüklenmiş veri varken yenileme hatası oluşursa içerik kaybolmadan mesaj gösterilir. */}
       {error ? (
-        <StatusMessage tone="danger" action={<Button onClick={reload}>Tekrar dene</Button>}>
-          {error}
+        <StatusMessage tone="danger" action={<Button onClick={reload}>{t("button_retry")}</Button>}>
+          {tv(error)}
         </StatusMessage>
       ) : null}
 
@@ -94,13 +98,13 @@ export default function DashboardPage() {
 
       <Modal
         open={recommendationsOpen}
-        title="Öneri motoru çıkarımları"
-        subtitle="Müşteri davranışları ve fatura verilerinden çıkarılan istatistikler."
+        title={t("dashboard_recommendation_modal_title")}
+        subtitle={t("dashboard_recommendation_modal_subtitle")}
         onClose={() => setRecommendationsOpen(false)}
         width="660px"
         footer={
           <Button variant="primary" onClick={() => setRecommendationsOpen(false)}>
-            Kapat
+            {t("button_close")}
           </Button>
         }
       >
@@ -111,8 +115,8 @@ export default function DashboardPage() {
               className={`recommendation-item recommendation-item--${item.tone}`}
             >
               <div>
-                <strong>{item.title}</strong>
-                <p>{item.description}</p>
+                <strong>{tv(item.title)}</strong>
+                <p>{tv(item.description)}</p>
               </div>
             </article>
           ))}

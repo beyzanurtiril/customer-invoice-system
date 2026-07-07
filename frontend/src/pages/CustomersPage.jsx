@@ -36,6 +36,9 @@ import DeleteCustomerModal from "../components/customers/DeleteCustomerModal";
 // Mevcut müşteri bilgilerini güncellemek için kullanılan modal.
 import UpdateCustomerModal from "../components/customers/UpdateCustomerModal";
 
+// Dil tercihine göre metinleri çevirir (tr/en).
+import { useLanguage } from "../context/LanguageContext";
+
 // Projede tekrar kullanılan genel buton componenti.
 import Button from "../components/ui/Button";
 
@@ -50,6 +53,10 @@ import useCustomers from "../hooks/useCustomers";
 
 import { defaultCustomerFilters, updateCustomerFilters } from "../utils/customerFilter";
 export default function CustomersPage() {
+  // Arayüz metinlerini seçili dile göre döndürür.
+  const { locale, t, tv } = useLanguage();
+  const languageLocale = locale === "en-US" ? "en-US" : "tr-TR";
+
   /*
     useCustomers hook'undan müşteri verilerini ve backend işlemlerini alıyoruz.
 
@@ -195,15 +202,15 @@ export default function CustomersPage() {
   const activeFilterChips = useMemo(
     () =>
       [
-        filters.lineType !== "Tümü" ? { key: "lineType", label: filters.lineType } : null,
-        filters.tag !== "Tümü" ? { key: "tag", label: filters.tag } : null,
-        filters.city !== "Tümü" ? { key: "city", label: filters.city } : null,
-        filters.delay !== "Tümü" ? { key: "delay", label: `${filters.delay} gecikme` } : null,
+        filters.lineType !== "Tümü" ? { key: "lineType", label: tv(filters.lineType) } : null,
+        filters.tag !== "Tümü" ? { key: "tag", label: tv(filters.tag) } : null,
+        filters.city !== "Tümü" ? { key: "city", label: tv(filters.city) } : null,
+        filters.delay !== "Tümü" ? { key: "delay", label: tv(`${filters.delay} gecikme`) } : null,
         filters.monthlyInvoice !== "Tümü"
-          ? { key: "monthlyInvoice", label: filters.monthlyInvoice }
+          ? { key: "monthlyInvoice", label: tv(filters.monthlyInvoice) }
           : null,
       ].filter(Boolean),
-    [filters],
+    [filters, tv],
   );
 
   /*
@@ -215,13 +222,13 @@ export default function CustomersPage() {
     tekrar çalışır.
   */
   const filteredCustomers = useMemo(() => {
-    const normalized = search.trim().toLocaleLowerCase("tr-TR");
+    const normalized = search.trim().toLocaleLowerCase(languageLocale);
 
     return customers.filter((customer) => {
       const matchesSearch =
         !normalized ||
         [customer.name, customer.id, customer.phone, customer.city].some((value) =>
-          String(value).toLocaleLowerCase("tr-TR").includes(normalized),
+          String(value).toLocaleLowerCase(languageLocale).includes(normalized),
         );
 
       const matchesLineType = filters.lineType === "Tümü" || customer.lineType === filters.lineType;
@@ -232,7 +239,7 @@ export default function CustomersPage() {
 
       return matchesSearch && matchesLineType && matchesTag && matchesCity;
     });
-  }, [customers, filters, search]);
+  }, [customers, filters, languageLocale, search]);
 
   /*filter additions*/
   const handleFilterChange = (name, value) => {
@@ -253,12 +260,8 @@ export default function CustomersPage() {
     setFiltersOpen(false);
   };
 
-  const removeFilterChip = (label) => {
-    const chip = activeFilterChips.find((item) => item.label === label);
-
-    if (!chip) return;
-
-    handleFilterChange(chip.key, "Tümü");
+  const removeFilterChip = (key) => {
+    handleFilterChange(key, "Tümü");
   };
 
   /*
@@ -301,8 +304,8 @@ export default function CustomersPage() {
 
       // Başarı modalında gösterilecek mesajı oluşturur.
       setNotice({
-        title: "Müşteri başarıyla eklendi",
-        message: `${customer.name} müşteri listesine eklendi.`,
+        title: t("customers_notice_add_title"),
+        message: t("customers_notice_add_message", { name: customer.name }),
       });
     } catch {
       /*
@@ -334,8 +337,8 @@ export default function CustomersPage() {
 
       // Başarı mesajını açar.
       setNotice({
-        title: "Müşteri güncellendi",
-        message: `${customer.name} bilgileri kaydedildi.`,
+        title: t("customers_notice_update_title"),
+        message: t("customers_notice_update_message", { name: customer.name }),
       });
     } catch {
       // Hata useCustomers hook'undaki error state'i üzerinden gösterilir.
@@ -364,8 +367,8 @@ export default function CustomersPage() {
 
       // Başarı mesajını gösterir.
       setNotice({
-        title: "Müşteri silindi",
-        message: `${deletedName} müşteri listesinden kaldırıldı.`,
+        title: t("customers_notice_delete_title"),
+        message: t("customers_notice_delete_message", { name: deletedName }),
       });
     } catch {
       // Silme hatası useCustomers tarafından error state'ine yazılır.
@@ -389,7 +392,7 @@ export default function CustomersPage() {
         layout.css -> `.page-heading`
       */}
       <div className="page-heading">
-        <h1>Müşteriler</h1>
+        <h1>{t("customers_title")}</h1>
 
         <p>
           {/*
@@ -399,7 +402,7 @@ export default function CustomersPage() {
             toLocaleString("tr-TR"):
             2418 değerini 2.418 şeklinde gösterir.
           */}
-          {customers.length.toLocaleString("tr-TR")} kayıtlı müşteri · 57 riskli
+          {t("customers_summary", { count: customers.length.toLocaleString(locale) })}
         </p>
       </div>
 
@@ -410,8 +413,8 @@ export default function CustomersPage() {
         müşterileri yeniden yüklemeyi dener.
       */}
       {error ? (
-        <StatusMessage tone="danger" action={<Button onClick={reload}>Tekrar dene</Button>}>
-          {error}
+        <StatusMessage tone="danger" action={<Button onClick={reload}>{t("button_retry")}</Button>}>
+          {tv(error)}
         </StatusMessage>
       ) : null}
 
@@ -448,7 +451,7 @@ export default function CustomersPage() {
         Temizle butonuna basıldığında bütün chipler silinir.
       */}
       <ActiveFilterChips
-        chips={activeFilterChips.map((chip) => chip.label)}
+        chips={activeFilterChips}
         resultCount={filteredCustomers.length}
         onRemove={removeFilterChip}
         onClear={() =>
@@ -480,7 +483,13 @@ export default function CustomersPage() {
 
         filtersOpen true olduğunda açılır.
       */}
-      <CustomerFiltersModal open={filtersOpen} onClose={() => setFiltersOpen(false)} />
+      <CustomerFiltersModal
+        open={filtersOpen}
+        filters={draftFilters}
+        onChange={handleDraftFilterChange}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyDraftFilters}
+      />
 
       {/*
         Yeni müşteri ekleme modalı.
@@ -577,13 +586,13 @@ export default function CustomersPage() {
       */}
       <Modal
         open={Boolean(notice)}
-        title={notice?.title ?? "İşlem tamamlandı"}
+        title={notice?.title ?? t("customers_notice_default_title")}
         subtitle={notice?.message}
         onClose={() => setNotice(null)}
         width="420px"
         footer={
           <Button variant="primary" onClick={() => setNotice(null)}>
-            Tamam
+            {t("button_ok")}
           </Button>
         }
       >
