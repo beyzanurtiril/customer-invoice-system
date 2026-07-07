@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record InvoiceResponse(
-        Long invoiceId,
-        Long customerId,
+        Integer invoiceId,
+        Integer customerId,
+        String customerName,
         ProductResponse product,
         String paymentChannel,
         BigDecimal invoiceAmount,

@@ -3,7 +3,7 @@ package com.pia.telekom.dto;
 import java.math.BigDecimal;
 
 public record RegionalPaymentAnalysisResponse(
-        Long regionId,
+        Integer regionId,
         String regionName,
         String city,
         long totalInvoiceCount,

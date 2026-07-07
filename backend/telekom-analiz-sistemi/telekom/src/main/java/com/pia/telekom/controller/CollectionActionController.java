@@ -19,13 +19,13 @@ public class CollectionActionController {
     private final CollectionActionService collectionActionService;
 
     @GetMapping
-    public List<CollectionActionResponse> getActions(@PathVariable Long invoiceId) {
+    public List<CollectionActionResponse> getActions(@PathVariable Integer invoiceId) {
         return collectionActionService.getActionsByInvoice(invoiceId);
     }
 
     @PostMapping
     public ResponseEntity<CollectionActionResponse> createAction(
-            @PathVariable Long invoiceId,
+            @PathVariable Integer invoiceId,
             @Valid @RequestBody CollectionActionRequest request) {
         CollectionActionResponse created = collectionActionService.createAction(invoiceId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);

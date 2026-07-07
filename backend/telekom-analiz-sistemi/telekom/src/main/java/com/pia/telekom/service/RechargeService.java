@@ -22,12 +22,12 @@ public class RechargeService {
     private final CustomerRepository customerRepository;
 
     @Transactional(readOnly = true)
-    public Page<RechargeResponse> getRechargesByCustomer(Long customerId, Pageable pageable) {
+    public Page<RechargeResponse> getRechargesByCustomer(Integer customerId, Pageable pageable) {
         return rechargeRepository.findByCustomer_CustomerId(customerId, pageable).map(this::toResponse);
     }
 
     @Transactional
-    public RechargeResponse createRecharge(Long customerId, RechargeRequest request) {
+    public RechargeResponse createRecharge(Integer customerId, RechargeRequest request) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId));
 

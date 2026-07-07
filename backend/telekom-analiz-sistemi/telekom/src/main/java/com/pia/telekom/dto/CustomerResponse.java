@@ -3,7 +3,7 @@ package com.pia.telekom.dto;
 import java.time.LocalDate;
 
 public record CustomerResponse(
-        Long customerId,
+        Integer customerId,
         String name,
         String surname,
         LocalDate birthdate,

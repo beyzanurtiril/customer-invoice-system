@@ -3,8 +3,8 @@ package com.pia.telekom.dto;
 import java.time.LocalDate;
 
 public record CollectionActionResponse(
-        Long actionId,
-        Long invoiceId,
+        Integer actionId,
+        Integer invoiceId,
         String actionType,
         LocalDate actionDate
 ) {

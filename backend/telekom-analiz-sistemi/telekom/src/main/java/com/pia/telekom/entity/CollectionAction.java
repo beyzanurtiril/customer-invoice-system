@@ -21,13 +21,13 @@ public class CollectionAction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "action_id")
-    private int actionId;
+    private Integer actionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invoice_id", nullable = false)
+    @JoinColumn(name = "invoice_id")
     private Invoice invoice;
 
-    @Column(name = "action_type", nullable = false, length = 30)
+    @Column(name = "action_type", length = 30)
     private String actionType;
 
     @Column(name = "action_date")

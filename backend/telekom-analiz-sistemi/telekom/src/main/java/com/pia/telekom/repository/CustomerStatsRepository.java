@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CustomerStatsRepository extends JpaRepository<CustomerStats, Long> {
+public interface CustomerStatsRepository extends JpaRepository<CustomerStats, Integer> {
 }
 
 // @MapsId kullandım çünkü customer_stats.customer_id hem primary key hem foreign key (Customer'a 1-1) — bu

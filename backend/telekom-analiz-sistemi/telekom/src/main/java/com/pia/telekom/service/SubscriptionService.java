@@ -25,7 +25,7 @@ public class SubscriptionService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public SubscriptionResponse getSubscriptionByCustomer(Long customerId) {
+    public SubscriptionResponse getSubscriptionByCustomer(Integer customerId) {
         Subscription subscription = subscriptionRepository.findByCustomer_CustomerId(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Bu müşteriye ait abonelik bulunamadı: customerId=" + customerId));
         return toResponse(subscription);

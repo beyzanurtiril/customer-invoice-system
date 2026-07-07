@@ -14,10 +14,10 @@ public class Recharge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recharge_id")
-    private Long rechargeId;
+    private Integer rechargeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @Column(name = "recharge_channel", length = 30)

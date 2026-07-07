@@ -20,12 +20,12 @@ public class RechargeController {
     private final RechargeService rechargeService;
 
     @GetMapping
-    public Page<RechargeResponse> getRecharges(@PathVariable Long customerId, @ParameterObject Pageable pageable) {
+    public Page<RechargeResponse> getRecharges(@PathVariable Integer customerId, @ParameterObject Pageable pageable) {
         return rechargeService.getRechargesByCustomer(customerId, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<RechargeResponse> createRecharge(@PathVariable Long customerId,
+    public ResponseEntity<RechargeResponse> createRecharge(@PathVariable Integer customerId,
                                                            @Valid @RequestBody RechargeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(rechargeService.createRecharge(customerId, request));
     }

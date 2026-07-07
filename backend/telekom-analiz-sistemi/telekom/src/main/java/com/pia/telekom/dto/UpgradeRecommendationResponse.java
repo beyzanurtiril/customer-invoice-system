@@ -3,9 +3,9 @@ package com.pia.telekom.dto;
 import java.math.BigDecimal;
 
 public record UpgradeRecommendationResponse(
-        Long customerId,
+        Integer customerId,
         String customerFullName,
-        Long currentProductId,
+        Integer currentProductId,
         String currentProductName,
         int overageInvoiceCount,
         BigDecimal totalOverageAmount,
