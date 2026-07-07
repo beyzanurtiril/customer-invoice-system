@@ -8,15 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
+public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 
-    Page<Invoice> findByCustomer_CustomerId(Long customerId, Pageable pageable);
+    Page<Invoice> findByCustomer_CustomerId(Integer customerId, Pageable pageable);
 
-    boolean existsByInvoiceIdAndCustomer_CustomerId(Long invoiceId, Long customerId);
+    boolean existsByInvoiceIdAndCustomer_CustomerId(Integer invoiceId, Integer customerId);
 
     @Query("""
         SELECT i.customer.customerId, COUNT(i)
@@ -30,7 +31,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Object[]> countOverdueGroupedByCustomerIds(
             @Param("today") LocalDate today,
             @Param("since") LocalDate since,
-            @Param("customerIds") List<Long> customerIds);
+            @Param("customerIds") List<Integer> customerIds);
 
     @Query("""
         SELECT i FROM Invoice i
@@ -38,4 +39,28 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
         JOIN FETCH c.region
         """)
     List<Invoice> findAllWithCustomerAndRegion();
+
+    @Query(value = "SELECT i FROM Invoice i JOIN FETCH i.customer c LEFT JOIN FETCH i.product",
+            countQuery = "SELECT COUNT(i) FROM Invoice i")
+    Page<Invoice> findAllWithCustomer(Pageable pageable);
+
+    long countByPaymentDateIsNullAndDueDateBefore(LocalDate date);
+
+    @Query("""
+        SELECT i.customer.customerId
+        FROM Invoice i
+        WHERE i.paymentDate IS NULL AND i.dueDate < :today AND i.invoiceDate > :since
+        GROUP BY i.customer.customerId
+        HAVING COUNT(i) >= :threshold
+        """)
+    List<Integer> findCustomerIdsWithOverdueCountAtLeast(
+            @Param("today") LocalDate today,
+            @Param("since") LocalDate since,
+            @Param("threshold") long threshold);
+
+    @Query("SELECT MAX(i.invoiceDate) FROM Invoice i")
+    LocalDate findMaxInvoiceDate();
+
+    @Query("SELECT COALESCE(SUM(i.invoiceAmount), 0) FROM Invoice i WHERE i.invoiceDate BETWEEN :start AND :end")
+    BigDecimal sumInvoiceAmountBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

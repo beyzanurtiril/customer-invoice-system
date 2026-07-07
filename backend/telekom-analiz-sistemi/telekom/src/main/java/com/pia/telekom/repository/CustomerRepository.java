@@ -3,13 +3,14 @@ package com.pia.telekom.repository;
 import com.pia.telekom.entity.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long>,
+public interface CustomerRepository extends JpaRepository<Customer, Integer>,
         JpaSpecificationExecutor<Customer> {
 
     @Override
@@ -18,7 +19,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>,
 
     @Override
     @EntityGraph(attributePaths = "region")
-    Page<Customer> findAll(org.springframework.data.jpa.domain.Specification<Customer> spec, Pageable pageable);
+    Page<Customer> findAll(Specification<Customer> spec, Pageable pageable);
 
-    Page<Customer> findByRegion_RegionId(Long regionId, Pageable pageable);
+    Page<Customer> findByRegion_RegionId(Integer regionId, Pageable pageable);
 }

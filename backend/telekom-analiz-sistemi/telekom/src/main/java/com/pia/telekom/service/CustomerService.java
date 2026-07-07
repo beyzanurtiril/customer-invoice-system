@@ -35,27 +35,27 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Page<CustomerResponse> getAllCustomers(Pageable pageable) {
         Page<Customer> customerPage = customerRepository.findAll(pageable);
-        Map<Long, Long> riskMap = buildOverdueCountMap(customerPage.getContent());
+        Map<Integer, Long> riskMap = buildOverdueCountMap(customerPage.getContent());
         return customerPage.map(customer -> toResponse(customer, riskMap));
     }
 
     @Transactional(readOnly = true)
-    public CustomerResponse getCustomerById(Long customerId) {
+    public CustomerResponse getCustomerById(Integer customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId));
-        Map<Long, Long> riskMap = buildOverdueCountMap(List.of(customer));
+        Map<Integer, Long> riskMap = buildOverdueCountMap(List.of(customer));
         return toResponse(customer, riskMap);
     }
 
     @Transactional(readOnly = true)
     public Page<CustomerResponse> searchCustomers(String name, String surname,
-                                                  Long regionId, String cityType,
+                                                  Integer regionId, String cityType,
                                                   String subscriptionType, Integer minOverdueCount,
                                                   Pageable pageable) {
         Specification<Customer> spec = com.pia.telekom.specification.CustomerSpecification.filterBy(
                 name, surname, regionId, cityType, subscriptionType, minOverdueCount);
         Page<Customer> customerPage = customerRepository.findAll(spec, pageable);
-        Map<Long, Long> riskMap = buildOverdueCountMap(customerPage.getContent());
+        Map<Integer, Long> riskMap = buildOverdueCountMap(customerPage.getContent());
         return customerPage.map(customer -> toResponse(customer, riskMap));
     }
 
@@ -82,7 +82,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public CustomerResponse updateCustomer(Long customerId, CustomerRequest request) {
+    public CustomerResponse updateCustomer(Integer customerId, CustomerRequest request) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId));
         Region region = regionRepository.findById(request.regionId())
@@ -100,36 +100,36 @@ public class CustomerService {
         customer.setHasAutopay(request.hasAutopay() != null ? request.hasAutopay() : customer.getHasAutopay());
 
         Customer updated = customerRepository.save(customer);
-        Map<Long, Long> riskMap = buildOverdueCountMap(List.of(updated));
+        Map<Integer, Long> riskMap = buildOverdueCountMap(List.of(updated));
         return toResponse(updated, riskMap);
     }
 
     @Transactional
-    public void deleteCustomer(Long customerId) {
+    public void deleteCustomer(Integer customerId) {
         if (!customerRepository.existsById(customerId)) {
             throw new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId);
         }
         customerRepository.deleteById(customerId);
     }
 
-    private Map<Long, Long> buildOverdueCountMap(List<Customer> customers) {
+    private Map<Integer, Long> buildOverdueCountMap(List<Customer> customers) {
         if (customers.isEmpty()) {
             return Map.of();
         }
 
-        List<Long> customerIds = customers.stream().map(Customer::getCustomerId).toList();
+        List<Integer> customerIds = customers.stream().map(Customer::getCustomerId).toList();
         LocalDate since = LocalDate.now().minusMonths(LOOKBACK_MONTHS);
 
         List<Object[]> rows = invoiceRepository.countOverdueGroupedByCustomerIds(
                 LocalDate.now(), LocalDate.now().minusMonths(LOOKBACK_MONTHS), customerIds);
         return rows.stream()
                 .collect(Collectors.toMap(
-                        row -> (Long) row[0],
+                        row -> (Integer) row[0],
                         row -> (Long) row[1]
                 ));
     }
 
-    private CustomerResponse toResponse(Customer customer, Map<Long, Long> riskMap) {
+    private CustomerResponse toResponse(Customer customer, Map<Integer, Long> riskMap) {
         RegionResponse regionResponse = new RegionResponse(
                 customer.getRegion().getRegionId(),
                 customer.getRegion().getName(),

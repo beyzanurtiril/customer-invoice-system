@@ -26,7 +26,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
-    public CustomerResponse getCustomerById(@PathVariable Long customerId) {
+    public CustomerResponse getCustomerById(@PathVariable Integer customerId) {
         return customerService.getCustomerById(customerId);
     }
 
@@ -34,7 +34,7 @@ public class CustomerController {
     public Page<CustomerResponse> searchCustomers(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String surname,
-            @RequestParam(required = false) Long regionId,
+            @RequestParam(required = false) Integer regionId,
             @RequestParam(required = false) String cityType,
             @RequestParam(required = false) String subscriptionType,
             @RequestParam(required = false) Integer minOverdueCount,
@@ -49,13 +49,13 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}")
-    public CustomerResponse updateCustomer(@PathVariable Long customerId,
+    public CustomerResponse updateCustomer(@PathVariable Integer customerId,
                                            @Valid @RequestBody CustomerRequest request) {
         return customerService.updateCustomer(customerId, request);
     }
 
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }

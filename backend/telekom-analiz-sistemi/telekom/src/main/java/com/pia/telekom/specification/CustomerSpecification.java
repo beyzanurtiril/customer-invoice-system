@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class CustomerSpecification {
 
     public static Specification<Customer> filterBy(String name, String surname,
-                                                   Long regionId, String cityType,
+                                                   Integer regionId, String cityType,
                                                    String subscriptionType,
                                                    Integer minOverdueCount) {
         return (root, query, cb) -> {

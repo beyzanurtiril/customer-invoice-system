@@ -12,7 +12,7 @@ public class CustomerStats {
 
     @Id
     @Column(name = "customer_id")
-    private Long customerId;
+    private Integer customerId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

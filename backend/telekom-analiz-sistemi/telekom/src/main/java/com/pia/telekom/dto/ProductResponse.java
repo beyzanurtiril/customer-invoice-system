@@ -3,7 +3,7 @@ package com.pia.telekom.dto;
 import java.math.BigDecimal;
 
 public record ProductResponse(
-        Long productId,
+        Integer productId,
         String name,
         String category,
         BigDecimal monthlyFee,

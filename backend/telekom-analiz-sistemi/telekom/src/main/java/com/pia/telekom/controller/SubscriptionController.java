@@ -19,7 +19,7 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping("/by-customer/{customerId}")
-    public SubscriptionResponse getSubscriptionByCustomer(@PathVariable Long customerId) {
+    public SubscriptionResponse getSubscriptionByCustomer(@PathVariable Integer customerId) {
         return subscriptionService.getSubscriptionByCustomer(customerId);
     }
 

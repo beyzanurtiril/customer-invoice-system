@@ -25,14 +25,14 @@ public class InvoiceService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public Page<InvoiceResponse> getInvoicesByCustomer(Long customerId, Pageable pageable) {
+    public Page<InvoiceResponse> getInvoicesByCustomer(Integer customerId, Pageable pageable) {
         ensureCustomerExists(customerId);
         return invoiceRepository.findByCustomer_CustomerId(customerId, pageable)
                 .map(this::toResponse);
     }
 
     @Transactional
-    public InvoiceResponse createInvoice(Long customerId, InvoiceRequest request) {
+    public InvoiceResponse createInvoice(Integer customerId, InvoiceRequest request) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId));
 
@@ -55,7 +55,7 @@ public class InvoiceService {
     }
 
     @Transactional
-    public InvoiceResponse updateInvoice(Long customerId, Long invoiceId, InvoiceRequest request) {
+    public InvoiceResponse updateInvoice(Integer customerId, Integer invoiceId, InvoiceRequest request) {
         Invoice invoice = getInvoiceForCustomerOrThrow(customerId, invoiceId);
         Product product = resolveProduct(request.productId());
 
@@ -73,12 +73,12 @@ public class InvoiceService {
     }
 
     @Transactional
-    public void deleteInvoice(Long customerId, Long invoiceId) {
+    public void deleteInvoice(Integer customerId, Integer invoiceId) {
         Invoice invoice = getInvoiceForCustomerOrThrow(customerId, invoiceId);
         invoiceRepository.delete(invoice);
     }
 
-    private Invoice getInvoiceForCustomerOrThrow(Long customerId, Long invoiceId) {
+    private Invoice getInvoiceForCustomerOrThrow(Integer customerId, Integer invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new EntityNotFoundException("Fatura bulunamadı: id=" + invoiceId));
 
@@ -89,13 +89,13 @@ public class InvoiceService {
         return invoice;
     }
 
-    private void ensureCustomerExists(Long customerId) {
+    private void ensureCustomerExists(Integer customerId) {
         if (!customerRepository.existsById(customerId)) {
             throw new EntityNotFoundException("Müşteri bulunamadı: id=" + customerId);
         }
     }
 
-    private Product resolveProduct(Long productId) {
+    private Product resolveProduct(Integer  productId) {
         if (productId == null) {
             return null;
         }
@@ -113,9 +113,12 @@ public class InvoiceService {
             );
         }
 
+        Customer customer = invoice.getCustomer();
+
         return new InvoiceResponse(
                 invoice.getInvoiceId(),
-                invoice.getCustomer().getCustomerId(),
+                customer.getCustomerId(),
+                customer.getName() + " " + customer.getSurname(),
                 productResponse,
                 invoice.getPaymentChannel(),
                 invoice.getInvoiceAmount(),
@@ -126,5 +129,10 @@ public class InvoiceService {
                 invoice.getPaymentDate(),
                 invoice.getPaymentStatus()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InvoiceResponse> getAllInvoices(Pageable pageable) {
+        return invoiceRepository.findAllWithCustomer(pageable).map(this::toResponse);
     }
 }

@@ -6,10 +6,10 @@ import java.time.LocalDate;
 
 public record SubscriptionRequest(
         @NotNull(message = "Müşteri seçimi zorunludur")
-        Long customerId,
+        Integer customerId,
 
         @NotNull(message = "Ürün seçimi zorunludur")
-        Long productId,
+        Integer productId,
 
         LocalDate startDate,
         String status

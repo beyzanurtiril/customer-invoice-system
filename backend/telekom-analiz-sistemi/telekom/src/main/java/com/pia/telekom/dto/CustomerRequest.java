@@ -20,7 +20,7 @@ public record CustomerRequest(
         String phone,
 
         @NotNull(message = "Bölge seçimi zorunludur")
-        Long regionId,
+        Integer regionId,
 
         String ageGroup,
         String paymentChannelPreference,

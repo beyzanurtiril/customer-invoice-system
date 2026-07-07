@@ -22,7 +22,7 @@ public class CollectionActionService {
     // RegionRepository silindi
 
     @Transactional(readOnly = true)
-    public List<CollectionActionResponse> getActionsByInvoice(Long invoiceId) {
+    public List<CollectionActionResponse> getActionsByInvoice(Integer invoiceId) {
         return collectionActionRepository.findByInvoice_InvoiceId(invoiceId)
                 .stream()
                 .map(this::toResponse)
@@ -30,7 +30,7 @@ public class CollectionActionService {
     }
 
     @Transactional
-    public CollectionActionResponse createAction(Long invoiceId, CollectionActionRequest request) {
+    public CollectionActionResponse createAction(Integer invoiceId, CollectionActionRequest request) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new EntityNotFoundException("Fatura bulunamadı: id=" + invoiceId));
 

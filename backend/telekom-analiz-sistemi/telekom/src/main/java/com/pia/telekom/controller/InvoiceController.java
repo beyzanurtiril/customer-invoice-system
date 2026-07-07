@@ -20,27 +20,27 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public Page<InvoiceResponse> getInvoices(@PathVariable Long customerId, @ParameterObject Pageable pageable) {
+    public Page<InvoiceResponse> getInvoices(@PathVariable Integer customerId, @ParameterObject Pageable pageable) {
         return invoiceService.getInvoicesByCustomer(customerId, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<InvoiceResponse> createInvoice(@PathVariable Long customerId,
+    public ResponseEntity<InvoiceResponse> createInvoice(@PathVariable Integer customerId,
                                                          @Valid @RequestBody InvoiceRequest request) {
         InvoiceResponse created = invoiceService.createInvoice(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{invoiceId}")
-    public InvoiceResponse updateInvoice(@PathVariable Long customerId,
-                                         @PathVariable Long invoiceId,
+    public InvoiceResponse updateInvoice(@PathVariable Integer customerId,
+                                         @PathVariable Integer invoiceId,
                                          @Valid @RequestBody InvoiceRequest request) {
         return invoiceService.updateInvoice(customerId, invoiceId, request);
     }
 
     @DeleteMapping("/{invoiceId}")
-    public ResponseEntity<Void> deleteInvoice(@PathVariable Long customerId,
-                                              @PathVariable Long invoiceId) {
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Integer customerId,
+                                              @PathVariable Integer invoiceId) {
         invoiceService.deleteInvoice(customerId, invoiceId);
         return ResponseEntity.noContent().build();
     }
