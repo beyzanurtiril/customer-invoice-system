@@ -3,8 +3,6 @@ package com.pia.telekom.specification;
 import com.pia.telekom.entity.Customer;
 import com.pia.telekom.entity.Invoice;
 import com.pia.telekom.entity.Subscription;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -35,11 +33,16 @@ public class CustomerSpecification {
                 predicates = cb.and(predicates,
                         cb.equal(cb.lower(root.get("region").get("cityType")), cityType.toLowerCase()));
             }
+
             if (subscriptionType != null && !subscriptionType.isBlank()) {
-                Join<Customer, Subscription> subJoin = root.join("subscription", JoinType.INNER);
-                predicates = cb.and(predicates,
-                        cb.equal(cb.lower(subJoin.get("product").get("subscriptionType")), subscriptionType.toLowerCase()));
+                Subquery<Integer> subSub = query.subquery(Integer.class);
+                var subRoot = subSub.from(Subscription.class);
+                subSub.select(subRoot.get("customer").get("customerId"));
+                subSub.where(cb.equal(cb.lower(subRoot.get("product").get("subscriptionType")), subscriptionType.toLowerCase()));
+
+                predicates = cb.and(predicates, root.get("customerId").in(subSub));
             }
+
             if (minOverdueCount != null) {
                 Subquery<Long> overdueSub = query.subquery(Long.class);
                 var invoiceRoot = overdueSub.from(Invoice.class);
@@ -53,6 +56,7 @@ public class CustomerSpecification {
                 predicates = cb.and(predicates,
                         cb.greaterThanOrEqualTo(overdueSub, minOverdueCount.longValue()));
             }
+
             return predicates;
         };
     }

@@ -27,12 +27,7 @@ public class UpgradeRecommendationService {
     public List<UpgradeRecommendationResponse> getRecommendations() {
         LocalDate since = LocalDate.now().minusMonths(LOOKBACK_MONTHS);
 
-        List<Invoice> overageInvoices = invoiceRepository.findAll().stream()
-                .filter(inv -> inv.getInvoiceDate().isAfter(since))
-                .filter(inv -> inv.getOverageAmount() != null
-                        && inv.getOverageAmount().compareTo(BigDecimal.ZERO) > 0)
-                .filter(inv -> inv.getProduct() != null)
-                .toList();
+        List<Invoice> overageInvoices = invoiceRepository.findOverageInvoicesSince(since);
 
         Map<Customer, List<Invoice>> groupedByCustomer = overageInvoices.stream()
                 .collect(Collectors.groupingBy(Invoice::getCustomer));

@@ -56,7 +56,4 @@ public class Customer {
     @Builder.Default
     private Boolean hasAutopay = false;
 
-    @OneToOne(mappedBy = "customer", fetch = FetchType.LAZY)
-    private Subscription subscription;
-
 }

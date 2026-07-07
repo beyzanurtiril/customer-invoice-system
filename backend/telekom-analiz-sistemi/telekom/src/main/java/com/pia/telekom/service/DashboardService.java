@@ -71,12 +71,15 @@ public class DashboardService {
 
     private List<PackageDistributionItem> buildPackageDistribution() {
         List<Object[]> rows = subscriptionRepository.countGroupedByCategory();
-        long total = rows.stream().mapToLong(r -> (Long) r[1]).sum();
+
+        long total = rows.stream()
+                .mapToLong(r -> ((Number) r[1]).longValue())
+                .sum();
 
         return rows.stream()
                 .map(r -> {
-                    String category = (String) r[0];
-                    long count = (Long) r[1];
+                    String category = String.valueOf(r[0]);
+                    long count = ((Number) r[1]).longValue();
                     double percentage = total == 0 ? 0.0 : Math.round((count * 1000.0) / total) / 10.0;
                     return new PackageDistributionItem(category, count, percentage);
                 })
@@ -85,8 +88,17 @@ public class DashboardService {
 
     private List<CityRevenueItem> buildCityRevenue() {
         return regionalPaymentAnalysisService.analyzeByRegion().stream()
-                .map(r -> new CityRevenueItem(r.city(), r.totalRevenue()))
+                .map(r -> new CityRevenueItem(r.regionName(), r.totalRevenue(), mapCityTypeToGroup(r.city())))
                 .toList();
+    }
+
+    private String mapCityTypeToGroup(String cityType) {
+        if (cityType == null) return "Diğer";
+        return switch (cityType.toLowerCase()) {
+            case "metro" -> "Büyükşehir";
+            case "mid" -> "Bölge merkezi";
+            default -> "Diğer";
+        };
     }
 
     private List<String> buildRecommendations(DashboardStats stats) {

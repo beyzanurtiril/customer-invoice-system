@@ -63,4 +63,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
 
     @Query("SELECT COALESCE(SUM(i.invoiceAmount), 0) FROM Invoice i WHERE i.invoiceDate BETWEEN :start AND :end")
     BigDecimal sumInvoiceAmountBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    @Query("""
+    SELECT i FROM Invoice i
+    JOIN FETCH i.customer
+    LEFT JOIN FETCH i.product
+    WHERE i.overageAmount IS NOT NULL AND i.overageAmount > 0
+      AND i.invoiceDate > :since
+    """)
+    List<Invoice> findOverageInvoicesSince(@Param("since") LocalDate since);
 }
