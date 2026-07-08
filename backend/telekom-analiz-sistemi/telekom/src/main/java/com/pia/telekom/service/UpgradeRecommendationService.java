@@ -1,18 +1,15 @@
 package com.pia.telekom.service;
 
 import com.pia.telekom.dto.UpgradeRecommendationResponse;
-import com.pia.telekom.entity.Customer;
-import com.pia.telekom.entity.Invoice;
 import com.pia.telekom.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,40 +20,45 @@ public class UpgradeRecommendationService {
 
     private final InvoiceRepository invoiceRepository;
 
+    /*
+      PERFORMANS NOTU:
+      Eski hali findAll() ile bütün faturaları çekiyor, ardından her fatura için
+      lazy customer ve product proxy'lerini tetikleyerek Supabase'e YÜZLERCE ek
+      SELECT atıyordu (dashboard'un asıl yavaşlık sebebi buydu). Artık gruplama,
+      HAVING filtresi ve toplamlar DB'de tek sorguda yapılır; buraya yalnızca
+      öneri satırları döner. Sonuç 60 sn önbelleklenir.
+    */
+    @Cacheable("upgradeRecommendations")
     @Transactional(readOnly = true)
     public List<UpgradeRecommendationResponse> getRecommendations() {
         LocalDate since = LocalDate.now().minusMonths(LOOKBACK_MONTHS);
 
-        List<Invoice> overageInvoices = invoiceRepository.findOverageInvoicesSince(since);
-
-        Map<Customer, List<Invoice>> groupedByCustomer = overageInvoices.stream()
-                .collect(Collectors.groupingBy(Invoice::getCustomer));
-
-        return groupedByCustomer.entrySet().stream()
-                .filter(entry -> entry.getValue().size() >= OVERAGE_THRESHOLD)
-                .map(entry -> buildRecommendation(entry.getKey(), entry.getValue()))
+        return invoiceRepository.findUpgradeCandidates(since, OVERAGE_THRESHOLD).stream()
+                .map(this::toResponse)
                 .toList();
     }
 
-    private UpgradeRecommendationResponse buildRecommendation(Customer customer, List<Invoice> invoices) {
-        BigDecimal totalOverage = invoices.stream()
-                .map(Invoice::getOverageAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Invoice latestInvoice = invoices.get(invoices.size() - 1);
-        var product = latestInvoice.getProduct();
+    private UpgradeRecommendationResponse toResponse(Object[] row) {
+        Integer customerId = ((Number) row[0]).intValue();
+        String fullName = (String) row[1];
+        Integer productId = ((Number) row[2]).intValue();
+        String productName = (String) row[3];
+        String tierLevel = row[4] == null ? "?" : String.valueOf(row[4]);
+        int overageCount = ((Number) row[5]).intValue();
+        BigDecimal totalOverage = toBigDecimal(row[6]);
 
         String recommendation = "Paket limitini sık aşıyor, bir üst pakete (%s → üst tier) geçiş önerilir"
-                .formatted(product.getTierLevel());
+                .formatted(tierLevel);
 
         return new UpgradeRecommendationResponse(
-                customer.getCustomerId(),
-                customer.getName() + " " + customer.getSurname(),
-                product.getProductId(),
-                product.getName(),
-                invoices.size(),
-                totalOverage,
-                recommendation
+                customerId, fullName, productId, productName,
+                overageCount, totalOverage, recommendation
         );
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal bd) return bd;
+        if (value instanceof Number number) return BigDecimal.valueOf(number.doubleValue());
+        return BigDecimal.ZERO;
     }
 }

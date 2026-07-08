@@ -33,16 +33,18 @@ public class CustomerSpecification {
                 predicates = cb.and(predicates,
                         cb.equal(cb.lower(root.get("region").get("cityType")), cityType.toLowerCase()));
             }
-
             if (subscriptionType != null && !subscriptionType.isBlank()) {
-                Subquery<Integer> subSub = query.subquery(Integer.class);
-                var subRoot = subSub.from(Subscription.class);
-                subSub.select(subRoot.get("customer").get("customerId"));
-                subSub.where(cb.equal(cb.lower(subRoot.get("product").get("subscriptionType")), subscriptionType.toLowerCase()));
-
-                predicates = cb.and(predicates, root.get("customerId").in(subSub));
+                // Customer.subscription alanı kaldırıldığı için join yerine EXISTS subquery kullanıyoruz.
+                Subquery<Integer> subscriptionSub = query.subquery(Integer.class);
+                var subRoot = subscriptionSub.from(Subscription.class);
+                subscriptionSub.select(cb.literal(1));
+                subscriptionSub.where(
+                        cb.equal(subRoot.get("customer"), root),
+                        cb.equal(cb.lower(subRoot.get("product").get("subscriptionType")),
+                                subscriptionType.toLowerCase())
+                );
+                predicates = cb.and(predicates, cb.exists(subscriptionSub));
             }
-
             if (minOverdueCount != null) {
                 Subquery<Long> overdueSub = query.subquery(Long.class);
                 var invoiceRoot = overdueSub.from(Invoice.class);
@@ -56,7 +58,6 @@ public class CustomerSpecification {
                 predicates = cb.and(predicates,
                         cb.greaterThanOrEqualTo(overdueSub, minOverdueCount.longValue()));
             }
-
             return predicates;
         };
     }

@@ -1,20 +1,17 @@
 package com.pia.telekom.service;
 
 import com.pia.telekom.dto.RevenueForecastResponse;
-import com.pia.telekom.entity.Invoice;
 import com.pia.telekom.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,25 +19,29 @@ public class RevenueForecastService {
 
     private final InvoiceRepository invoiceRepository;
 
+    /*
+      PERFORMANS NOTU:
+      Eski hali invoiceRepository.findAll() ile TÜM fatura tablosunu uzak
+      Supabase'den çekip aylık toplamları Java'da hesaplıyordu. Artık aylık
+      toplamlar DB'de tek GROUP BY sorgusuyla hesaplanıyor; buraya sadece
+      "ay -> toplam" satırları geliyor (fatura sayısı ne olursa olsun ~aydaki
+      satır kadar veri). Sonuç ayrıca 60 sn önbelleklenir (CacheConfig).
+    */
+    @Cacheable("revenueForecast")
     @Transactional(readOnly = true)
     public RevenueForecastResponse forecastRevenue() {
-        List<Invoice> allInvoices = invoiceRepository.findAll();
-
-        Map<YearMonth, BigDecimal> monthlyRevenue = allInvoices.stream()
-                .collect(Collectors.groupingBy(
-                        inv -> YearMonth.from(inv.getInvoiceDate()),
-                        TreeMap::new,
-                        Collectors.reducing(BigDecimal.ZERO, Invoice::getInvoiceAmount, BigDecimal::add)
-                ));
+        List<Object[]> monthlyRows = invoiceRepository.sumRevenueGroupedByMonth();
 
         SimpleRegression regression = new SimpleRegression();
-        List<RevenueForecastResponse.MonthlyRevenue> historicalData = new java.util.ArrayList<>();
+        List<RevenueForecastResponse.MonthlyRevenue> historicalData = new ArrayList<>();
 
         int index = 0;
-        for (Map.Entry<YearMonth, BigDecimal> entry : monthlyRevenue.entrySet()) {
-            regression.addData(index, entry.getValue().doubleValue());
-            historicalData.add(new RevenueForecastResponse.MonthlyRevenue(
-                    entry.getKey().toString(), entry.getValue()));
+        for (Object[] row : monthlyRows) {
+            String yearMonth = (String) row[0];
+            BigDecimal total = toBigDecimal(row[1]);
+
+            regression.addData(index, total.doubleValue());
+            historicalData.add(new RevenueForecastResponse.MonthlyRevenue(yearMonth, total));
             index++;
         }
 
@@ -50,7 +51,7 @@ public class RevenueForecastService {
         BigDecimal nextMonthForecast = BigDecimal.ZERO;
         BigDecimal nextYearForecast = BigDecimal.ZERO;
 
-        if (monthlyRevenue.size() >= 2) {
+        if (historicalData.size() >= 2) {
             slope = regression.getSlope();
             intercept = regression.getIntercept();
             rSquared = regression.getRSquare();
@@ -66,6 +67,12 @@ public class RevenueForecastService {
                 historicalData, round(slope), round(intercept),
                 nextMonthForecast, nextYearForecast, round(rSquared)
         );
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal bd) return bd;
+        if (value instanceof Number number) return BigDecimal.valueOf(number.doubleValue());
+        return BigDecimal.ZERO;
     }
 
     private BigDecimal toMoney(double value) {

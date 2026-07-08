@@ -3,26 +3,38 @@ spring:
     name: telekom
 
   datasource:
+    # ÖNEMLİ: 6543 portu Supabase'in TRANSACTION POOLER'ı (PgBouncer transaction mode).
+    # PostgreSQL JDBC sürücüsü varsayılan olarak server-side prepared statement kullanır
+    # (prepareThreshold=5). Transaction pooler'da her sorgu farklı bir gerçek bağlantıya
+    # düşebildiği için "prepared statement \"S_1\" already exists" hatası ve rastgele
+    # 500'ler oluşur. prepareThreshold=0 bunu tamamen kapatır.
     url: jdbc:postgresql://aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
     username: postgres.itwdtfqafjqgmqaflrli
-    password: Supabase.123
+    password: ${SUPABASE_DB_PASSWORD:Supabase.123}
     driver-class-name: org.postgresql.Driver
+
     hikari:
-      maximum-pool-size: 2
-      minimum-idle: 0
-      connection-timeout: 5000
-      idle-timeout: 30000
+      # 2 bağlantı + 5sn timeout, frontend'in paralel istekleri altında anında tükeniyordu
+      # (SQLTransientConnectionException -> 500). Supabase pooler tarafı bağlantıyı zaten
+      # çok sayıda istemciye çoğullayabildiği için 10 güvenli bir değer.
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 60000
       max-lifetime: 300000
 
   jpa:
+    # OSIV açıkken DB bağlantısı JSON serileştirme bitene kadar elde tutulur;
+    # küçük havuz + uzak DB kombinasyonunda bağlantı açlığını büyütür. Kapatıyoruz.
+    open-in-view: false
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
-        jdbc:
-          statement_batch_size: 0
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   flyway:
     enabled: false
     baseline-on-migrate: true
@@ -34,7 +46,7 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
 
 springdoc:
   api-docs:
@@ -43,4 +55,3 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-

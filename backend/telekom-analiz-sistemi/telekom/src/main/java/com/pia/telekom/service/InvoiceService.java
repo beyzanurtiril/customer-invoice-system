@@ -10,7 +10,9 @@ import com.pia.telekom.repository.CustomerRepository;
 import com.pia.telekom.repository.InvoiceRepository;
 import com.pia.telekom.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import com.pia.telekom.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class InvoiceService {
                 .map(this::toResponse);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REVENUE_FORECAST,
+            CacheConfig.REGIONAL_PAYMENTS, CacheConfig.UPGRADE_RECOMMENDATIONS}, allEntries = true)
     @Transactional
     public InvoiceResponse createInvoice(Integer customerId, InvoiceRequest request) {
         Customer customer = customerRepository.findById(customerId)
@@ -54,6 +58,8 @@ public class InvoiceService {
         return toResponse(saved);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REVENUE_FORECAST,
+            CacheConfig.REGIONAL_PAYMENTS, CacheConfig.UPGRADE_RECOMMENDATIONS}, allEntries = true)
     @Transactional
     public InvoiceResponse updateInvoice(Integer customerId, Integer invoiceId, InvoiceRequest request) {
         Invoice invoice = getInvoiceForCustomerOrThrow(customerId, invoiceId);
@@ -72,6 +78,8 @@ public class InvoiceService {
         return toResponse(updated);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REVENUE_FORECAST,
+            CacheConfig.REGIONAL_PAYMENTS, CacheConfig.UPGRADE_RECOMMENDATIONS}, allEntries = true)
     @Transactional
     public void deleteInvoice(Integer customerId, Integer invoiceId) {
         Invoice invoice = getInvoiceForCustomerOrThrow(customerId, invoiceId);

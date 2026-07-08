@@ -4,7 +4,9 @@ import com.pia.telekom.dto.*;
 import com.pia.telekom.repository.CustomerRepository;
 import com.pia.telekom.repository.InvoiceRepository;
 import com.pia.telekom.repository.SubscriptionRepository;
+import com.pia.telekom.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,12 @@ public class DashboardService {
     private final RegionalPaymentAnalysisService regionalPaymentAnalysisService;
     private final UpgradeRecommendationService upgradeRecommendationService;
 
+    /*
+      Tüm dashboard cevabı 60 sn önbelleklenir (CacheConfig). Alt analizler de
+      kendi cache'lerine sahip olduğundan ilk istek bile eskisine göre çok
+      daha hafiftir; sonraki istekler DB'ye hiç gitmez.
+    */
+    @Cacheable(CacheConfig.DASHBOARD)
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard() {
         DashboardStats stats = buildStats();
@@ -71,15 +79,12 @@ public class DashboardService {
 
     private List<PackageDistributionItem> buildPackageDistribution() {
         List<Object[]> rows = subscriptionRepository.countGroupedByCategory();
-
-        long total = rows.stream()
-                .mapToLong(r -> ((Number) r[1]).longValue())
-                .sum();
+        long total = rows.stream().mapToLong(r -> (Long) r[1]).sum();
 
         return rows.stream()
                 .map(r -> {
-                    String category = String.valueOf(r[0]);
-                    long count = ((Number) r[1]).longValue();
+                    String category = (String) r[0];
+                    long count = (Long) r[1];
                     double percentage = total == 0 ? 0.0 : Math.round((count * 1000.0) / total) / 10.0;
                     return new PackageDistributionItem(category, count, percentage);
                 })
@@ -87,18 +92,10 @@ public class DashboardService {
     }
 
     private List<CityRevenueItem> buildCityRevenue() {
+        // r.city() alanı cityType (BÜYÜKŞEHİR/İL) taşıyor; grafikte şehir adı gösterilmeli.
         return regionalPaymentAnalysisService.analyzeByRegion().stream()
-                .map(r -> new CityRevenueItem(r.regionName(), r.totalRevenue(), mapCityTypeToGroup(r.city())))
+                .map(r -> new CityRevenueItem(r.regionName(), r.totalRevenue()))
                 .toList();
-    }
-
-    private String mapCityTypeToGroup(String cityType) {
-        if (cityType == null) return "Diğer";
-        return switch (cityType.toLowerCase()) {
-            case "metro" -> "Büyükşehir";
-            case "mid" -> "Bölge merkezi";
-            default -> "Diğer";
-        };
     }
 
     private List<String> buildRecommendations(DashboardStats stats) {

@@ -99,6 +99,15 @@
 			<version>3.6.1</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Dashboard/analiz sonuçlarını kısa süreli önbelleklemek için (CacheConfig) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
