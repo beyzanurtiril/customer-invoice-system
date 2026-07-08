@@ -75,11 +75,12 @@
 * {
   box-sizing: border-box;
 }
-/* Tüm sayfanın temel ayarı. min-width: 1180px küçük ekranlarda yatay scroll oluşturur. */
+/* Tüm sayfanın temel ayarı. Responsive: min-width kaldırıldı, artık tüm ekran
+   genişliklerinde (mobil dahil) yatay scroll oluşturmadan daralabiliyor. */
 body {
   margin: 0;
-  min-width: 1180px;
   min-height: 100vh;
+  overflow-x: hidden;
   background: var(--page-bg);
   color: var(--text);
   transition: background 0.15s ease, color 0.15s ease;

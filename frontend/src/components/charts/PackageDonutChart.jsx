@@ -21,9 +21,25 @@ const circumference = 2 * Math.PI * radius;
 const toneColors = {
   accent: "var(--accent)",
   blue: "var(--blue)",
-  gray: "var(--gray, #b9b9b9)",
-  line: "var(--line)",
+  teal: "#2aa7a0",
+  purple: "#7c6fd0",
+  orange: "#e8933a",
+  rose: "#d9668c",
+  gray: "#9aa3ad",
 };
+
+/*
+  NOT: Eski sürümde 3. ve 4. dilimlere "gray" ve "line" tonları atanıyordu.
+  --line bir kenarlık rengi olduğundan o dilim track ile aynı renkte kalıyor,
+  grafik "yüklenmiyor" gibi görünüyordu. Artık tanımsız/zayıf tonlar için
+  index bazlı belirgin bir palet kullanılır.
+*/
+const fallbackPalette = ["accent", "blue", "teal", "purple", "orange", "rose", "gray"];
+
+function resolveSegmentColor(tone, index) {
+  if (tone && tone !== "line" && toneColors[tone]) return toneColors[tone];
+  return toneColors[fallbackPalette[index % fallbackPalette.length]];
+}
 
 export default function PackageDonutChart({ data = [], totalLines = 0, title, subtitle }) {
   const { locale, t, tv } = useLanguage();
@@ -59,7 +75,7 @@ export default function PackageDonutChart({ data = [], totalLines = 0, title, su
         <span>{visibleSubtitle}</span>
       </div>
 
-      {segments.length && totalValue > 0 ? (
+      {segments.length > 0 && totalValue > 0 ? (
         <div className="donut-layout">
           <div className="donut-chart-wrap">
             <svg className="donut-chart" viewBox="0 0 120 120" role="img" aria-label={visibleTitle}>
@@ -67,12 +83,12 @@ export default function PackageDonutChart({ data = [], totalLines = 0, title, su
 
               {segments.map((segment, index) => (
                 <circle
-                  key={segment.label}
+                  key={`${segment.label}-${index}`}
                   cx="60"
                   cy="60"
                   r={radius}
                   className="donut-segment"
-                  stroke={toneColors[segment.tone] ?? toneColors.gray}
+                  stroke={resolveSegmentColor(segment.tone, index)}
                   strokeDasharray={`${segment.segmentLength} ${
                     circumference - segment.segmentLength
                   }`}
@@ -93,11 +109,11 @@ export default function PackageDonutChart({ data = [], totalLines = 0, title, su
           </div>
 
           <div className="donut-legend">
-            {segments.map((segment) => (
-              <div key={segment.label}>
+            {segments.map((segment, index) => (
+              <div key={`${segment.label}-${index}`}>
                 <span
                   className="legend-dot"
-                  style={{ background: toneColors[segment.tone] ?? toneColors.gray }}
+                  style={{ background: resolveSegmentColor(segment.tone, index) }}
                 />
                 <span>
                   {tv(segment.label)} · %{segment.percentage}

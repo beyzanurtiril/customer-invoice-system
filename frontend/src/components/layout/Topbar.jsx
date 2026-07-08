@@ -11,12 +11,26 @@
 
 import Button from "../ui/Button";
 import { useLanguage } from "../../context/LanguageContext";
+import { MenuIcon } from "./Icons";
 
-export default function Topbar({ onLogout }) {
+// `onMenuToggle` verildiğinde mobil ekranda hamburger butonu görünür
+// (buton CSS ile yalnızca dar ekranlarda gösterilir).
+export default function Topbar({ onLogout, onMenuToggle }) {
   const { t } = useLanguage();
 
   return (
     <header className="topbar">
+      {onMenuToggle ? (
+        <button
+          type="button"
+          className="topbar__menu-button"
+          onClick={onMenuToggle}
+          aria-label={t("topbar_menu_toggle")}
+        >
+          <MenuIcon />
+        </button>
+      ) : null}
+
       <div className="topbar__account">
         <div className="avatar">AD</div>
         <div>

@@ -9,6 +9,7 @@
 */
 
 import HorizontalBarChart from "../components/charts/HorizontalBarChart";
+import TurkeyMap from "../components/regional/TurkeyMap";
 import Button from "../components/ui/Button";
 import StatusMessage from "../components/ui/StatusMessage";
 import { useLanguage } from "../context/LanguageContext";
@@ -56,6 +57,8 @@ export default function RegionalPage() {
           {tv(error)}
         </StatusMessage>
       ) : null}
+
+      <TurkeyMap items={data?.mapItems ?? []} />
 
       <div className="dashboard-row dashboard-row--even">
         <HorizontalBarChart

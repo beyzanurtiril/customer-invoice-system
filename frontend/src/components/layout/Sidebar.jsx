@@ -21,11 +21,13 @@ const navItems = [
   { to: "/regional", key: "nav_regional", icon: PinIcon },
 ];
 
-export default function Sidebar() {
+// `open` ve `onNavigate`, mobil ekranda açılıp kapanan menü çekmecesi için kullanılır.
+// Masaüstünde bu prop'ların hiçbir etkisi yoktur (CSS sadece mobil breakpointte devreye girer).
+export default function Sidebar({ open = false, onNavigate }) {
   const { t } = useLanguage();
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? " sidebar--open" : ""}`}>
       <div className="brand">
         <strong>PiA</strong>
         <span className="brand__divider" />
@@ -43,6 +45,7 @@ export default function Sidebar() {
             to={to}
             // `end`, ana sayfa linkinin diğer tüm route'larda aktif görünmesini engeller.
             end={end}
+            onClick={onNavigate}
             className={({ isActive }) => `sidebar-link${isActive ? " sidebar-link--active" : ""}`}
           >
             <Icon />
@@ -54,6 +57,7 @@ export default function Sidebar() {
       {/* CSS'teki margin-top: auto sayesinde Ayarlar en alta gider. */}
       <NavLink
         to="/settings"
+        onClick={onNavigate}
         className={({ isActive }) =>
           `sidebar-link sidebar-link--settings${isActive ? " sidebar-link--active" : ""}`
         }

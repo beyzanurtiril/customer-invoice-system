@@ -1,55 +1,66 @@
 /*
   DOSYA: regionalService.js
 
-  Bölgesel ekranı ile veri kaynağı arasındaki bağlantı katmanıdır.
-  Componentler fetch çağrısı yapmaz; yalnızca bu servisten gelen sonucu kullanır.
+  Bölgesel ekranı için backend endpointi:
+  - GET /analysis/regional-payments
 
-  VITE_API_URL boşsa mockRegionalData döner.
-  VITE_API_URL doluysa GET /regional isteği yapılır.
-
-  Beklenen temel backend cevabı:
-  {
-    cityRevenue: { subtitle, unit, items },
-    mobilePayments: { subtitle, unit, items }
-  }
+  UI componentlerini değiştirmiyoruz. Backend'deki tek bölgesel analiz listesini
+  mevcut iki grafik yapısına burada çeviriyoruz.
 */
 
 import { mockRegionalData } from "../data/mockRegionalData";
+import { apiRequest, getListFromResponse, isApiEnabled } from "./apiClient";
 
-// Sondaki / işaretini kaldırarak çift slash oluşmasını engeller.
-const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const MOCK_DELAY_MS = 350;
 
 function wait(ms = MOCK_DELAY_MS) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-// Mock objenin componentler tarafından yanlışlıkla değiştirilmesini engellemek için kopya döner.
 function cloneRegionalData(data) {
   return JSON.parse(JSON.stringify(data));
 }
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw new Error(payload?.message ?? `Bölgesel veri isteği başarısız oldu (${response.status}).`);
-  }
-
-  return response.json();
+function toThousands(value) {
+  return Math.round(Number(value ?? 0) / 1000);
 }
 
-// Bölgesel ekranının bütün verisini tek istekle getirir.
+function normalizeRegionalData(response) {
+  const items = getListFromResponse(response);
+
+  return {
+    // Türkiye haritası bileşeni ham bölge kayıtlarını kullanır (regionName,
+    // totalRevenue, totalInvoiceCount, averageInvoiceAmount, overdueRatePercentage).
+    mapItems: items,
+
+    cityRevenue: {
+      subtitle: "Bölgelere göre toplam gelir",
+      unit: "Bin ₺",
+      items: items.map((item) => ({
+        ...item,
+        // Backend "city" alanında şehir tipi taşıyor; asıl şehir adı regionName.
+        label: item.regionName || item.city || item.name,
+        value: toThousands(item.totalRevenue),
+      })),
+    },
+
+    mobilePayments: {
+      subtitle: "Bölgelere göre fatura adedi",
+      unit: "Fatura",
+      items: items.map((item) => ({
+        ...item,
+        // Backend "city" alanında şehir tipi taşıyor; asıl şehir adı regionName.
+        label: item.regionName || item.city || item.name,
+        value: Number(item.totalInvoiceCount ?? 0),
+      })),
+    },
+  };
+}
+
 export async function getRegionalData() {
-  if (API_URL) {
-    return apiRequest("/regional");
+  if (isApiEnabled()) {
+    const response = await apiRequest("/analysis/regional-payments");
+    return normalizeRegionalData(response);
   }
 
   await wait();

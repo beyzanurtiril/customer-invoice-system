@@ -8,13 +8,26 @@ import { useLanguage } from "../context/LanguageContext";
 
 export default function AdminLayout({ onLogout }) {
   const [logoutOpen, setLogoutOpen] = useState(false);
+  // Mobil ekranda sidebar'ın açık/kapalı çekmece durumunu tutar; masaüstünde kullanılmaz.
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { t } = useLanguage();
 
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Sidebar open={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
+      {/* Mobilde menü açıkken arkasına tıklayınca kapatan karartma katmanı. */}
+      {mobileNavOpen ? (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setMobileNavOpen(false)}
+          aria-hidden="true"
+        />
+      ) : null}
       <main className="main-area">
-        <Topbar onLogout={() => setLogoutOpen(true)} />
+        <Topbar
+          onLogout={() => setLogoutOpen(true)}
+          onMenuToggle={() => setMobileNavOpen((value) => !value)}
+        />
         <div className="topbar-divider" />
         <Outlet />
       </main>
