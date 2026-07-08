@@ -61,7 +61,6 @@
   Figma tasarımındaki 560px lila sol panel ve ortalanmış sağ form alanı.
 */
 .login-page {
-  min-width: 1180px;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 560px minmax(0, 1fr);

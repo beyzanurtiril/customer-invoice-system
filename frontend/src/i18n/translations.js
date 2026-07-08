@@ -22,6 +22,7 @@ export const translations = {
     // Topbar / modal ortakları
     topbar_role: "Sistem yöneticisi",
     topbar_logout: "Çıkış yap →",
+    topbar_menu_toggle: "Menüyü aç/kapat",
     button_retry: "Tekrar dene",
     button_cancel: "Vazgeç",
     button_close: "Kapat",
@@ -208,6 +209,7 @@ export const translations = {
     // Topbar / shared modal labels
     topbar_role: "System administrator",
     topbar_logout: "Log out →",
+    topbar_menu_toggle: "Toggle menu",
     button_retry: "Try again",
     button_cancel: "Cancel",
     button_close: "Close",

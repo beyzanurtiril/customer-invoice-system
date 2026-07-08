@@ -143,6 +143,25 @@
   font-size: 18px;
   flex: 0 0 auto;
 }
+/* Mobil hamburger butonu; masaüstünde gizli, sadece responsive.css'teki
+   media query içinde görünür hale gelir. */
+.topbar__menu-button {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-2);
+  margin-right: auto;
+}
+/* Mobilde sidebar açıkken arkasını karartan katman; masaüstünde hiç render edilmez
+   (component tarafında yalnızca mobileNavOpen true iken DOM'a eklenir). */
+.sidebar-overlay {
+  display: none;
+}
 /* Topbar ile içerik arasındaki yatay çizgi. */
 .topbar-divider {
   height: 1px;

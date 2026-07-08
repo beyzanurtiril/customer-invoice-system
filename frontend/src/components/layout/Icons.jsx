@@ -67,6 +67,22 @@ export function PinIcon() {
   );
 }
 
+export function MenuIcon() {
+  return (
+    <svg {...commonProps}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+export function CloseMenuIcon() {
+  return (
+    <svg {...commonProps}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
 export function GearIcon() {
   return (
     <svg {...commonProps}>
