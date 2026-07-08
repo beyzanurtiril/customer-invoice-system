@@ -52,6 +52,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /*
+      Spring 6'da eşleşmeyen bir URL çağrıldığında NoResourceFoundException fırlar.
+      Bu handler olmadan istisna aşağıdaki genel Exception handler'a düşüyor ve
+      aslında 404 olması gereken durum 500 olarak dönüyordu (frontend'in yorum
+      satırındaki /subscriptions/by-customer endpoint'ini çağırması gibi).
+    */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "İstenen kaynak bulunamadı: " + ex.getResourcePath()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         log.error("Beklenmeyen hata oluştu", ex);

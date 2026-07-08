@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "customer")
@@ -56,4 +55,13 @@ public class Customer {
     @Builder.Default
     private Boolean hasAutopay = false;
 
+    /*
+      NOT: Buradaki @OneToOne(mappedBy = "customer") subscription alanı bilinçli olarak kaldırıldı.
+      mappedBy'lı OneToOne, Hibernate'de LAZY işaretlense bile lazy yüklenemez (bytecode
+      enhancement olmadan): Hibernate her müşteri için alanın null mu proxy mi olacağını
+      bilmek zorunda olduğundan subscription tablosuna müşteri başına ayrı SELECT atar.
+      Uzak Supabase bağlantısında bu N+1 sorgu, listeleme isteklerini timeout'a sürüklüyordu.
+      Subscription -> Customer yönü korunuyor; ihtiyaç halinde SubscriptionRepository
+      .findByCustomer_CustomerId(...) ile sorgulanır.
+    */
 }

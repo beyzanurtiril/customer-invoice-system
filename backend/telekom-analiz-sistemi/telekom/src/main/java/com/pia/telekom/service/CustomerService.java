@@ -9,7 +9,9 @@ import com.pia.telekom.repository.CustomerRepository;
 import com.pia.telekom.repository.InvoiceRepository;
 import com.pia.telekom.repository.RegionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import com.pia.telekom.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -59,6 +61,7 @@ public class CustomerService {
         return customerPage.map(customer -> toResponse(customer, riskMap));
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REGIONAL_PAYMENTS}, allEntries = true)
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request) {
         Region region = regionRepository.findById(request.regionId())
@@ -81,6 +84,7 @@ public class CustomerService {
         return toResponse(saved, Map.of());
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REGIONAL_PAYMENTS}, allEntries = true)
     @Transactional
     public CustomerResponse updateCustomer(Integer customerId, CustomerRequest request) {
         Customer customer = customerRepository.findById(customerId)
@@ -104,6 +108,7 @@ public class CustomerService {
         return toResponse(updated, riskMap);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD, CacheConfig.REGIONAL_PAYMENTS}, allEntries = true)
     @Transactional
     public void deleteCustomer(Integer customerId) {
         if (!customerRepository.existsById(customerId)) {

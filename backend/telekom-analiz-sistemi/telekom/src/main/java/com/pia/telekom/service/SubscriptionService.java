@@ -10,7 +10,9 @@ import com.pia.telekom.repository.CustomerRepository;
 import com.pia.telekom.repository.ProductRepository;
 import com.pia.telekom.repository.SubscriptionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import com.pia.telekom.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,14 @@ public class SubscriptionService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
+    /*
+      Bu metod tek müşteri detayı için kullanılır ve tek sorgu atar; sorun bu değildi.
+      Asıl yük, Customer entity'sindeki mappedBy'lı OneToOne alanının her müşteri
+      listelemesinde otomatik subscription sorgusu tetiklemesi ve frontend'in liste
+      ekranında HER müşteri için bu endpoint'i ayrı ayrı çağırmasıydı. Entity alanı
+      kaldırıldı, frontend liste akışı toplu sorguya çevrildi; detay ekranı için
+      bu endpoint aktif kalıyor.
+    */
     @Transactional(readOnly = true)
     public SubscriptionResponse getSubscriptionByCustomer(Integer customerId) {
         Subscription subscription = subscriptionRepository.findByCustomer_CustomerId(customerId)
@@ -31,6 +41,7 @@ public class SubscriptionService {
         return toResponse(subscription);
     }
 
+    @CacheEvict(cacheNames = {CacheConfig.DASHBOARD}, allEntries = true)
     @Transactional
     public SubscriptionResponse createSubscription(SubscriptionRequest request) {
         Customer customer = customerRepository.findById(request.customerId())
